@@ -24,8 +24,8 @@ class Regression:
         NOTE : En mettant phi_x = x, on a une fonction de base lineaire qui fonctionne pour une regression lineaire
         """
         # AJOUTER CODE ICI
-        repeat_mat = x if (np.isscalar(x))  else np.reshape(np.repeat(x, M, axis=0), [len(x), M]) 
-        phi_x = repeat_mat ** np.arange(1, M+1)
+        repeat_mat = x if (np.isscalar(x))  else np.reshape(np.repeat(x, self.M, axis=0), [len(x), self.M]) 
+        phi_x = repeat_mat ** np.arange(1, self.M+1)
         return phi_x
 
     def recherche_hyperparametre(self, X, t):

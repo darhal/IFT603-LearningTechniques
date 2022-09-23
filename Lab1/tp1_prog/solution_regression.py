@@ -89,11 +89,11 @@ class Regression:
         
         phi_x = self.fonction_base_polynomiale(X)
         phi_x_trans = phi_x.transpose()
-        phi_square = phi_x_trans * phi_x
+        phi_square = phi_x_trans @ phi_x
         I = np.eye(phi_square.shape[0], phi_square.shape[1])
-        first_term = np.linalg.solve(self.lamb * I + phi_square, I)
-        second_term = phi_x_trans * t
-        self.w = first_term * second_term
+        first_term = np.linalg.solve(self.lamb @ I + phi_square, I)
+        second_term = phi_x_trans @ t
+        self.w = first_term @ second_term
 
     def prediction(self, x):
         """

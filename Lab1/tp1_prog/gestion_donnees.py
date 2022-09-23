@@ -59,11 +59,11 @@ class GestionDonnees:
 
         if scatter is True:
             plt.scatter(x, t)
+            plt.plot(x_mod, t_mod, 'k', label="Ground Truth")
         else:
             idx = np.argsort(x)
             plt.plot(x[idx], t[idx], 'g', label="Prediction")
 
-        plt.plot(x_mod, t_mod, 'k', label="Ground Truth")
         plt.ylim(ymin=-1.5, ymax=4.5)
         plt.legend()
 

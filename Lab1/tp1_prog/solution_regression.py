@@ -114,15 +114,15 @@ class Regression:
 
         """
         #AJOUTER CODE ICI
+        if (using_sklearn):
+            reg = linear_model.Ridge(alpha=self.lamb)
+            reg.fit(X.reshape(-1, 1), t)
+            self.w = reg.coef_
+            return
+
         if self.M <= 0:
             self.recherche_hyperparametre(X, t)
 
-        if (using_sklearn):
-            reg = linear_model.Ridge(alpha=self.lamb)
-            reg.fit(X, t)
-            self.w = reg.coef_
-            return
-        
         phi_x = self.fonction_base_polynomiale(X)
         phi_x_trans = phi_x.transpose()
         phi_square = phi_x_trans @ phi_x

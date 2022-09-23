@@ -24,9 +24,10 @@ class Regression:
         NOTE : En mettant phi_x = x, on a une fonction de base lineaire qui fonctionne pour une regression lineaire
         """
         # AJOUTER CODE ICI
-        repeat_mat = x if (np.isscalar(x)) else np.reshape(np.repeat(x, self.M, axis=0), [len(x), self.M])
-        phi_x = repeat_mat ** np.arange(1, self.M+1)
+        repeat_mat = x if (np.isscalar(x)) else np.reshape(np.repeat(x, self.M+1, axis=0), [len(x), self.M+1])
+        phi_x = repeat_mat ** np.arange(self.M+1)
         return phi_x
+
 
     def recherche_hyperparametre(self, X, t):
         """
@@ -49,7 +50,42 @@ class Regression:
         t: vecteur de cibles
         """
         # AJOUTER CODE ICI
-        self.M = 1
+        K = len(X) if len(X) < 10 else 10
+        Min, Max = 1, 20
+        # Shuffling
+        zippedXt = list(zip(X, t))
+        random.shuffle(zippedXt)
+        nX, nT = zip(*zippedXt)
+        # Splitting
+        Xparts = np.array(np.array_split(nX, K))
+        Tparts = np.array(np.array_split(nT, K))
+        # Init
+        goodM = self.M
+        minErr = np.Inf
+
+        for m in range(Min, Max):
+            self.M = m
+            err_list = []
+            
+            for f in range(K):
+                # Merge X and t folds togther
+                Xtrain = np.concatenate(Xparts[np.arange(K)!=f], axis=None)
+                Ttrain = np.concatenate(Tparts[np.arange(K)!=f], axis=None)
+                self.entrainement(Xtrain, Ttrain, False)
+                # Predict and calculate error on validation fold
+                Xvalid = Xparts[f]
+                Tvalid = Tparts[f]
+                predict = self.prediction(Xvalid)
+                err_list.append(self.erreur(Tvalid, predict).mean())
+            
+            # Update the value of M
+            err_mean = np.mean(err_list)
+            if err_mean < minErr:
+                minErr = err_mean
+                goodM = self.M
+        
+        self.M = goodM
+
 
     def entrainement(self, X, t, using_sklearn=False):
         """
@@ -91,9 +127,10 @@ class Regression:
         phi_x_trans = phi_x.transpose()
         phi_square = phi_x_trans @ phi_x
         I = np.eye(phi_square.shape[0], phi_square.shape[1])
-        first_term = np.linalg.solve(self.lamb @ I + phi_square, I)
+        first_term = np.linalg.solve(self.lamb * I + phi_square, I)
         second_term = phi_x_trans @ t
         self.w = first_term @ second_term
+
 
     def prediction(self, x):
         """
@@ -105,7 +142,8 @@ class Regression:
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
         # AJOUTER CODE ICI
-        return self.w.transpose() @ self.fonction_base_polynomiale(x)
+        return self.fonction_base_polynomiale(x) @ self.w
+
 
     @staticmethod
     def erreur(t, prediction):

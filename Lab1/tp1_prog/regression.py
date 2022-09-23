@@ -83,7 +83,7 @@ def main():
     predictions_range = np.array([regression.prediction(x) for x in np.arange(0, 1, 0.01)])
     gestionnaire_donnees.afficher_donnees_et_modele(np.arange(0, 1, 0.01), predictions_range, False)
 
-    if m >= 0:
+    if m > 0:
         plt.suptitle('Resultat SANS recherche d\'hyperparametres')
     else:
         plt.suptitle('Resultat AVEC recherche d\'hyperparametres')

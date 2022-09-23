@@ -94,7 +94,7 @@ class Regression:
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
         # AJOUTER CODE ICI
-        return 0.5
+        return self.w.transpose() @ self.fonction_base_polynomiale(x)
 
     @staticmethod
     def erreur(t, prediction):

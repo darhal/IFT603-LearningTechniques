@@ -114,4 +114,4 @@ class Regression:
         la cible ``t`` et la prediction ``prediction``.
         """
         # AJOUTER CODE ICI
-        return 0.0
+        return (t - prediction) ** 2

@@ -24,7 +24,7 @@ class Regression:
         NOTE : En mettant phi_x = x, on a une fonction de base lineaire qui fonctionne pour une regression lineaire
         """
         # AJOUTER CODE ICI
-        repeat_mat = x if (np.isscalar(x))  else np.reshape(np.repeat(x, self.M, axis=0), [len(x), self.M]) 
+        repeat_mat = x if (np.isscalar(x)) else np.reshape(np.repeat(x, self.M, axis=0), [len(x), self.M])
         phi_x = repeat_mat ** np.arange(1, self.M+1)
         return phi_x
 
@@ -81,8 +81,19 @@ class Regression:
         if self.M <= 0:
             self.recherche_hyperparametre(X, t)
 
+        if (using_sklearn):
+            reg = linear_model.Ridge(alpha=self.lamb)
+            reg.fit(X, t)
+            self.w = reg.coef_
+            return
+        
         phi_x = self.fonction_base_polynomiale(X)
-        self.w = [0, 1]
+        phi_x_trans = phi_x.transpose()
+        phi_square = phi_x_trans * phi_x
+        I = np.eye(phi_square.shape[0], phi_square.shape[1])
+        first_term = np.linalg.solve(self.lamb * I + phi_square, I)
+        second_term = phi_x_trans * t
+        self.w = first_term * second_term
 
     def prediction(self, x):
         """

@@ -24,8 +24,8 @@ class Regression:
         NOTE : En mettant phi_x = x, on a une fonction de base lineaire qui fonctionne pour une regression lineaire
         """
         # AJOUTER CODE ICI
-        repeat_mat = x if (np.isscalar(x)) else np.reshape(np.repeat(x, self.M+1, axis=0), [len(x), self.M+1])
-        phi_x = repeat_mat ** np.arange(self.M+1)
+        repeat_mat = x if (np.isscalar(x)) else np.reshape(np.repeat(x, self.M, axis=0), [len(x), self.M])
+        phi_x = repeat_mat ** np.arange(1, self.M+1)
         return phi_x
 
 
@@ -114,16 +114,18 @@ class Regression:
 
         """
         #AJOUTER CODE ICI
-        if (using_sklearn):
-            reg = linear_model.Ridge(alpha=self.lamb)
-            reg.fit(X.reshape(-1, 1), t)
-            self.w = reg.coef_
-            return
-
         if self.M <= 0:
             self.recherche_hyperparametre(X, t)
-
         phi_x = self.fonction_base_polynomiale(X)
+
+        if (using_sklearn):
+            reg = linear_model.Ridge(alpha=self.lamb)
+            reg.fit(phi_x, t)
+            # self.w = reg.coef_
+            self.w = np.append(reg.intercept_, reg.coef_)
+            return
+        
+        phi_x = np.insert(phi_x, 0, 1, axis=1)
         phi_x_trans = phi_x.transpose()
         phi_square = phi_x_trans @ phi_x
         I = np.eye(phi_square.shape[0], phi_square.shape[1])
@@ -142,8 +144,7 @@ class Regression:
         afin de calculer la prediction y(x,w) (equation 3.1 et 3.3).
         """
         # AJOUTER CODE ICI
-        return self.fonction_base_polynomiale(x) @ self.w
-
+        return self.fonction_base_polynomiale(x) @ self.w[1:] + self.w[0]
 
     @staticmethod
     def erreur(t, prediction):

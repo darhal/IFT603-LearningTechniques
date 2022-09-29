@@ -17,9 +17,10 @@ def warning(erreur_test, erreur_apprentissage, bruit):
     bruit: magnitude du bruit
     """
     # AJOUTER CODE ICI
-    if (erreur_test <= bruit and abs(erreur_test - erreur_apprentissage) > bruit):
+    # TODO : Check the validity of this
+    if (erreur_apprentissage <= bruit and erreur_test/erreur_apprentissage < 0.90 or erreur_test/erreur_apprentissage > 1.1):
         print("Warning : Possibilite de sur-apprentissage")
-    if (erreur_test > bruit and erreur_apprentissage > bruit):
+    elif (erreur_test > bruit or erreur_apprentissage > bruit):
         print("Warning : Possibilite de sous-apprentissage")
 
 ################################

@@ -18,7 +18,10 @@ M: degré du polynome de la fonction de base (recherche d'hyperparametre lorsque
 lambda: lambda utilisé par le modele de Ridge
 ```
 
-Par exemple: python3 regression.py 1 sin 20 20 0.3 10 0.00
+Par exemple: 
+```
+python3 regression.py 1 sin 20 20 0.3 10 0.00
+```
 
 ## Requirements
 Voir le README.md dans le répertoire parent Lab1 pour avoir les librairies python nécessaires à l'exécution du code.

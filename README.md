@@ -5,4 +5,6 @@ A repository that mainy contain labs for IFT603 (Learning Techniques / Technique
 Les packages nécessaires pour exécuter les scripts sont disponibles dans le fichier requirements.txt
 
 ## Commandes
+```
 pip install requirements.txt
+```

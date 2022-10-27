@@ -65,15 +65,36 @@ class ClassifieurLineaire:
         if self.methode == 1:  # Classification generative
             print('Classification generative')
             # AJOUTER CODE ICI
+            pA = np.count_nonzero(t_train == 0) / t_train.size
+            pB = np.count_nonzero(t_train == 1) / t_train.size
+            muA = np.mean(x_train[t_train == 0])
+            muB = np.mean(x_train[t_train == 1])
+            sigmaA = np.mean((x_train[t_train == 0] - muA) ** 2)
+            sigmaB = np.mean((x_train[t_train == 1] - muB) ** 2)
+            self.w_0 = ((muA * muA * sigmaB) / 2) - ((muB * muB * sigmaA) / 2) - sigmaA * sigmaB * np.log((np.sqrt(sigmaB) * pA) / (np.sqrt(sigmaA) * pB))
+            self.w = [
+                muB * sigmaA - muA * sigmaB,
+                (sigmaB - sigmaA) / 2
+            ]
 
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
             # AJOUTER CODE ICI
+            learning_rate = 0.001 
+            nb_iterations_max = 1000
+            for _ in range(0, nb_iterations_max):
+                for i in range(0, t_train.size):
+                    if (self.prediction(x_train[i]) * t_train[i] < 0):
+                        self.w += learning_rate * t_train[i] * x_train[i]
 
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
             # AJOUTER CODE ICI
-
+            perceptron = Perceptron(alpha=self.lamb, eta0=0.001, penalty='l2')
+            perceptron.fit(x_train, t_train)
+            self.w_0 = perceptron.intercept_
+            self.w = perceptron.coef_[0]
+        
         print('w = ', self.w, 'w_0 = ', self.w_0, '\n')
 
     def prediction(self, x):
@@ -88,7 +109,8 @@ class ClassifieurLineaire:
         et ``self.w_0`` afin de faire cette classification.
         """
         # AJOUTER CODE ICI
-        return 0
+        pred = x @ self.w + self.w_0
+        return 0 if (pred < 0) else 1
 
     @staticmethod
     def erreur(t, prediction):
@@ -98,7 +120,7 @@ class ClassifieurLineaire:
         sont différentes, 0. sinon.
         """
         # AJOUTER CODE ICI
-        return 0
+        return 0 if t == prediction else 1
 
     def afficher_donnees_et_modele(self, x_train, t_train, x_test, t_test):
         """

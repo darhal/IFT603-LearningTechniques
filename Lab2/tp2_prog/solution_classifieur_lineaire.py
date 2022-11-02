@@ -65,17 +65,18 @@ class ClassifieurLineaire:
         if self.methode == 1:  # Classification generative
             print('Classification generative')
             # AJOUTER CODE ICI
-            pA = np.count_nonzero(t_train == 0) / t_train.size
-            pB = np.count_nonzero(t_train == 1) / t_train.size
-            muA = np.mean(x_train[t_train == 0])
-            muB = np.mean(x_train[t_train == 1])
-            sigmaA = np.mean((x_train[t_train == 0] - muA) ** 2)
-            sigmaB = np.mean((x_train[t_train == 1] - muB) ** 2)
-            self.w_0 = ((muA * muA * sigmaB) / 2) - ((muB * muB * sigmaA) / 2) - sigmaA * sigmaB * np.log((np.sqrt(sigmaB) * pA) / (np.sqrt(sigmaA) * pB))
-            self.w = [
-                muB * sigmaA - muA * sigmaB,
-                (sigmaB - sigmaA) / 2
-            ]
+            N1 = np.count_nonzero(t_train==0)
+            N2 = np.count_nonzero(t_train==1)
+            p = N1 / (N1 + N2)
+            mu_1 = np.mean(x_train[t_train==0], axis=0)
+            mu_2 = np.mean(x_train[t_train==1], axis=0)
+            sigma1 = ((x_train[t_train==0] - mu_1).T @ (x_train[t_train==0] - mu_1)) / N1
+            sigma2 = ((x_train[t_train==1] - mu_2).T @ (x_train[t_train==1] - mu_2)) / N2
+            sigma = p * sigma1 + (1 - p) * sigma2
+            sigma += np.diag(np.full(sigma.shape, self.lamb))
+            sigmaInv = np.linalg.inv(sigma)
+            self.w = sigmaInv @ (mu_1 - mu_2)
+            self.w_0 = (-1/2) * mu_1.T @ sigmaInv @ mu_1 + (1/2) * mu_2.T @ sigmaInv @ mu_2 + np.log(p/(1-p))
 
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')
@@ -84,8 +85,11 @@ class ClassifieurLineaire:
             nb_iterations_max = 1000
             for _ in range(0, nb_iterations_max):
                 for i in range(0, t_train.size):
-                    if (self.prediction(x_train[i]) * t_train[i] < 0):
-                        self.w += learning_rate * t_train[i] * x_train[i]
+                    ti = 1 if  t_train[i] == 1 else -1
+                    yi = 1 if self.prediction(x_train[i]) == 1 else -1
+                    if (yi * ti < 0):
+                        self.w += learning_rate * x_train[i] * ti
+                        self.w_0 += ti
 
         else:  # Perceptron + SGD [sklearn] + learning rate = 0.001 + penalty 'l2' voir http://scikit-learn.org/
             print('Perceptron [sklearn]')
@@ -94,7 +98,7 @@ class ClassifieurLineaire:
             perceptron.fit(x_train, t_train)
             self.w_0 = perceptron.intercept_
             self.w = perceptron.coef_[0]
-        
+            
         print('w = ', self.w, 'w_0 = ', self.w_0, '\n')
 
     def prediction(self, x):

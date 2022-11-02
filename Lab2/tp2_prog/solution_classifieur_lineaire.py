@@ -65,18 +65,18 @@ class ClassifieurLineaire:
         if self.methode == 1:  # Classification generative
             print('Classification generative')
             # AJOUTER CODE ICI
-            N1 = np.count_nonzero(t_train==0)
-            N2 = np.count_nonzero(t_train==1)
+            N1 = np.count_nonzero(t_train==1)
+            N2 = np.count_nonzero(t_train==0)
             p = N1 / (N1 + N2)
-            mu_1 = np.mean(x_train[t_train==0], axis=0)
-            mu_2 = np.mean(x_train[t_train==1], axis=0)
-            sigma1 = ((x_train[t_train==0] - mu_1).T @ (x_train[t_train==0] - mu_1)) / N1
-            sigma2 = ((x_train[t_train==1] - mu_2).T @ (x_train[t_train==1] - mu_2)) / N2
+            mu_1 = np.mean(x_train[t_train==1], axis=0)
+            mu_2 = np.mean(x_train[t_train==0], axis=0)
+            sigma1 = ((x_train[t_train==1] - mu_1).T @ (x_train[t_train==1] - mu_1)) / N1
+            sigma2 = ((x_train[t_train==0] - mu_2).T @ (x_train[t_train==0] - mu_2)) / N2
             sigma = p * sigma1 + (1 - p) * sigma2
             sigma += np.diag(np.full(sigma.shape, self.lamb))
             sigmaInv = np.linalg.inv(sigma)
             self.w = sigmaInv @ (mu_1 - mu_2)
-            self.w_0 = (-1/2) * mu_1.T @ sigmaInv @ mu_1 + (1/2) * mu_2.T @ sigmaInv @ mu_2 + np.log(p/(1-p))
+            self.w_0 = (-1/2) * (mu_1.T @ sigmaInv @ mu_1) + (1/2) * (mu_2.T @ sigmaInv @ mu_2) + np.log(p/(1-p))
 
         elif self.methode == 2:  # Perceptron + SGD, learning rate = 0.001, nb_iterations_max = 1000
             print('Perceptron')

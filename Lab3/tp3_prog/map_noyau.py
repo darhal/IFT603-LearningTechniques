@@ -74,7 +74,7 @@ class MAPnoyau:
         la cible ``t`` et la prédiction ``prediction``.
         """
         # AJOUTER CODE ICI
-        return 0.
+        return (t - prediction) ** 2
 
     def validation_croisee(self, x_tab, t_tab):
         """

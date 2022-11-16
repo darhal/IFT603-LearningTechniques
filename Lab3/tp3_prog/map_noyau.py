@@ -4,6 +4,7 @@
 # Vos Noms (Vos Matricules) .~= À MODIFIER =~.
 ###
 
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -17,7 +18,7 @@ class MAPnoyau:
         sigma_square: paramètre du noyau rbf
         b, d: paramètres du noyau sigmoidal
         M,c: paramètres du noyau polynomial
-        noyau: rbf, lineaire, olynomial ou sigmoidal
+        noyau: rbf, lineaire, polynomial ou sigmoidal
         """
         self.lamb = lamb
         self.a = None
@@ -51,6 +52,18 @@ class MAPnoyau:
         d'apprentissage dans ``self.x_train``
         """
         #AJOUTER CODE ICI
+        rbf = lambda x1, x2: np.exp(-(np.linalg.norm(x1 - x2) ** 2) / (2 * self.sigma_square))
+        lin = lambda x1, x2: (x1.T @ x2 + self.c)
+        poly = lambda x1, x2: (x1.T @ x2 + self.c) ** self.M
+        sig = lambda x1, x2: np.tanh(self.b * x1.T @ x2 + self.d)
+        kernels = { "rbf": rbf, "lineaire": lin, "polynomial": poly, "sigmoidal": sig }
+        N = x_train.shape[0]
+        self.x_train = x_train
+        K = np.zeros((N, N))
+        for i in range(0, N):
+            for j in range(0, N):
+                K[i,j] = kernels[self.noyau](x_train[i,:], x_train[j,:])
+        self.a = np.linalg.inv(K + self.lamb * np.identity(N)) @ t_train
         
     def prediction(self, x):
         """
@@ -66,7 +79,17 @@ class MAPnoyau:
         sinon
         """
         #AJOUTER CODE ICI
-        return 0
+        rbf = lambda x1, x2: np.exp(-(np.linalg.norm(x1 - x2) ** 2) / (2 * self.sigma_square))
+        lin = lambda x1, x2: (x1.T @ x2 + self.c)
+        poly = lambda x1, x2: (x1.T @ x2 + self.c) ** self.M
+        sig = lambda x1, x2: np.tanh(self.b * x1.T @ x2 + self.d)
+        kernels = { "rbf": rbf, "lineaire": lin, "polynomial": poly, "sigmoidal": sig }
+        N = self.x_train.shape[0]
+        K = np.zeros(N)
+        for i in range(0, N):
+            K[i] = kernels[self.noyau](self.x_train[i,:], x)
+        y = self.a.T @ K
+        return 1 if y > 0.5 else 0
 
     def erreur(self, t, prediction):
         """
@@ -89,6 +112,87 @@ class MAPnoyau:
         de ''self.b'' et ''self.d'' de 0.00001 à 0.01 et ``self.M`` de 2 à 6
         """
         # AJOUTER CODE ICI
+        K = 10
+        # Shuffling
+        zippedXt = list(zip(x_tab, t_tab))
+        random.shuffle(zippedXt)
+        nX, nT = zip(*zippedXt)
+        # Splitting
+        Xparts = np.array(np.array_split(nX, K))
+        Tparts = np.array(np.array_split(nT, K))
+        minErr = np.Inf
+
+        def cross_validation_impl():
+            err_list = []
+            for f in range(K):
+                # Merge X and t folds togther
+                Xtrain = np.concatenate(Xparts[np.arange(K)!=f], axis=0)
+                Ttrain = np.concatenate(Tparts[np.arange(K)!=f], axis=0)
+                self.entrainement(Xtrain, Ttrain)
+                # Predict and calculate error on validation fold
+                Xvalid = Xparts[f]
+                Tvalid = Tparts[f]
+                predict = self.prediction(Xvalid)
+                err_list.append(self.erreur(Tvalid, predict).mean())
+            return np.mean(err_list)
+
+        goodL = self.lamb
+        l = 0.000000001
+        while (l <= 2):
+            self.lamb = l
+            if (self.noyau == "rbf"):
+                goodSs = self.sigma_square
+                ss = 0.000000001
+                while (ss <= 2):
+                    self.sigma_square = ss
+                    err_mean = cross_validation_impl()
+                    if err_mean < minErr:
+                        minErr = err_mean
+                        goodSs = self.sigma_square
+                        goodL = self.lamb
+                    ss += 0.000000001
+                self.sigma_square = goodSs
+            elif (self.noyau == "polynomial" or self.noyau == "lineaire"):
+                goodM = self.M
+                goodC = self.c
+                start, end = 2, 7
+                if (self.noyau == "lineaire"):
+                    start, end = 1, 2
+                c = 0
+                while (c <= 5):
+                    for m in range(start, end, 1):
+                        self.c = c
+                        self.M = m
+                        err_mean = cross_validation_impl()
+                        if err_mean < minErr:
+                            minErr = err_mean
+                            goodM = self.M
+                            goodC = self.c
+                    c += 0.1
+                self.M = goodM
+                self.c = goodC
+            elif (self.noyau == "sigmoidal"): 
+                goodB = self.b
+                goodD = self.d
+                start, end = 2, 6
+                b = 0.00001
+                while (b <= 0.01):
+                    d = 0.00001
+                    while (d <= 0.01):
+                        self.b = b
+                        self.d = d
+                        err_mean = cross_validation_impl()
+                        if err_mean < minErr:
+                            minErr = err_mean
+                            goodB = self.b
+                            goodD = self.d
+                        d += 0.00001
+                    b += 0.00001
+                self.b = goodB
+                self.d = goodD
+            l += 0.000000001
+        self.lamb = goodL
+        self.entrainement(x_tab, t_tab)
 
     def affichage(self, x_tab, t_tab):
 

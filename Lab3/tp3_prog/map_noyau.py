@@ -29,8 +29,7 @@ class MAPnoyau:
         self.d = d
         self.noyau = noyau
         self.x_train = None
-
-        
+    
 
     def entrainement(self, x_train, t_train):
         """
@@ -64,7 +63,8 @@ class MAPnoyau:
             for j in range(0, N):
                 K[i,j] = kernels[self.noyau](x_train[i,:], x_train[j,:])
         self.a = np.linalg.inv(K + self.lamb * np.identity(N)) @ t_train
-        
+    
+    
     def prediction(self, x):
         """
         Retourne la prédiction pour une entrée representée par un tableau
@@ -91,6 +91,7 @@ class MAPnoyau:
         y = self.a.T @ K
         return 1 if y > 0.5 else 0
 
+
     def erreur(self, t, prediction):
         """
         Retourne la différence au carré entre
@@ -98,6 +99,7 @@ class MAPnoyau:
         """
         # AJOUTER CODE ICI
         return (t - prediction) ** 2
+
 
     def validation_croisee(self, x_tab, t_tab):
         """
@@ -168,6 +170,7 @@ class MAPnoyau:
                             minErr = err_mean
                             goodM = self.M
                             goodC = self.c
+                            goodL = self.lamb
                     c += 0.1
                 self.M = goodM
                 self.c = goodC
@@ -186,6 +189,7 @@ class MAPnoyau:
                             minErr = err_mean
                             goodB = self.b
                             goodD = self.d
+                            goodL = self.lamb
                         d += 0.00001
                     b += 0.00001
                 self.b = goodB
@@ -194,8 +198,8 @@ class MAPnoyau:
         self.lamb = goodL
         self.entrainement(x_tab, t_tab)
 
-    def affichage(self, x_tab, t_tab):
 
+    def affichage(self, x_tab, t_tab):
         # Affichage
         ix = np.arange(x_tab[:, 0].min(), x_tab[:, 0].max(), 0.1)
         iy = np.arange(x_tab[:, 1].min(), x_tab[:, 1].max(), 0.1)

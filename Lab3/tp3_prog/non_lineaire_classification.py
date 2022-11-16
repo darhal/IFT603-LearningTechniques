@@ -20,6 +20,10 @@ def analyse_erreur(err_train, err_test):
     apprentissage
     """
     #AJOUTER CODE ICI
+    if (err_train > 0.25):
+        print("Warning : Possibilite de sous-apprentissage")
+    elif (err_train <= 0.25 and err_test > 0.25):
+        print("Warning : Possibilite de sur-apprentissage")
 
 def main():
 
@@ -53,8 +57,11 @@ def main():
     # ~= À MODIFIER =~. 
     # AJOUTER CODE AFIN DE CALCULER L'ERREUR D'APPRENTISSAGE
     # ET DE VALIDATION EN % DU NOMBRE DE POINTS MAL CLASSES
-    err_train = 50
-    err_test = 50
+    # Predictions sur les ensembles d'entrainement et de test
+    predictions_train = np.array([mp.prediction(x) for x in x_train])
+    predictions_test = np.array([mp.prediction(x) for x in x_test])
+    err_train = np.array([mp.erreur(t_n, p_n) for t_n, p_n in zip(t_train, predictions_train)]).mean()
+    err_test = np.array([mp.erreur(t_n, p_n) for t_n, p_n in zip(t_test, predictions_test)]).mean()
 
     print('Erreur train = ', err_train, '%')
     print('Erreur test = ', err_test, '%')

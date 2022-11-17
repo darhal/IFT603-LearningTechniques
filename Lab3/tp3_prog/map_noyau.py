@@ -52,6 +52,8 @@ class MAPnoyau:
         """
         #AJOUTER CODE ICI
         def rbf(X, X2):
+            # Using the fact : ||x-y||^2 = ||x||^2 + ||y||^2 - 2 * x.T * y
+            # Inspired from : https://stackoverflow.com/questions/47271662/what-is-the-fastest-way-to-compute-an-rbf-kernel-in-python
             Xnorm = np.sum(X ** 2, axis=-1)
             return np.exp(-(Xnorm[:,None] + Xnorm[None,:] - 2 * X @ X.T) / (2 *  self.sigma_square))
         lin = lambda x1, x2: (x1 @ x2.T + self.c)

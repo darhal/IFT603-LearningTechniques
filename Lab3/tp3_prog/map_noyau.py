@@ -4,6 +4,7 @@
 # Vos Noms (Vos Matricules) .~= À MODIFIER =~.
 ###
 
+import itertools
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -51,7 +52,6 @@ class MAPnoyau:
         d'apprentissage dans ``self.x_train``
         """
         #AJOUTER CODE ICI
-        # print(x_train)
         rbf = lambda x1, x2: np.exp(-(np.linalg.norm(x1 - x2) ** 2) / (2 * self.sigma_square))
         lin = lambda x1, x2: (x1.T @ x2 + self.c)
         poly = lambda x1, x2: (x1.T @ x2 + self.c) ** self.M
@@ -59,10 +59,7 @@ class MAPnoyau:
         kernels = { "rbf": rbf, "lineaire": lin, "polynomial": poly, "sigmoidal": sig }
         N = x_train.shape[0]
         self.x_train = x_train
-        K = np.zeros((N, N))
-        for i in range(0, N):
-            for j in range(0, N):
-                K[i,j] = kernels[self.noyau](x_train[i,:], x_train[j,:])
+        K = np.array([ [ kernels[self.noyau](x_train[i,:], x_train[j,:]) for i in range(0, N) ] for j in range(0, N) ])
         self.a = np.linalg.inv(K + self.lamb * np.identity(N)) @ t_train
     
     
@@ -86,9 +83,7 @@ class MAPnoyau:
         sig = lambda x1, x2: np.tanh(self.b * x1.T @ x2 + self.d)
         kernels = { "rbf": rbf, "lineaire": lin, "polynomial": poly, "sigmoidal": sig }
         N = self.x_train.shape[0]
-        K = np.zeros(N)
-        for i in range(0, N):
-            K[i] = kernels[self.noyau](self.x_train[i,:], x)
+        K = np.array([ kernels[self.noyau](self.x_train[i,:], x) for i in range(0, N) ])
         y = self.a.T @ K
         return 1 if y > 0.5 else 0
 
@@ -123,27 +118,26 @@ class MAPnoyau:
         # Splitting
         Xparts = np.array(np.array_split(nX, K))
         Tparts = np.array(np.array_split(nT, K))
+        XtrainCache = [ np.concatenate(Xparts[np.arange(K)!=f], axis=0) for f in range(0, K) ]
+        TtrainCache = [ np.concatenate(Tparts[np.arange(K)!=f], axis=0) for f in range(0, K) ]
         minErr = np.Inf
 
         def cross_validation_impl():
-            err_list = []
-            for f in range(K):
-                # Merge X and t folds togther
-                Xtrain = np.concatenate(Xparts[np.arange(K)!=f], axis=0)
-                Ttrain = np.concatenate(Tparts[np.arange(K)!=f], axis=0)
-                self.entrainement(Xtrain, Ttrain)
-                # Predict and calculate error on validation fold
+            err = 0
+            for f in range(0, K):
+                Xtrain, Ttrain = XtrainCache[f], TtrainCache[f]
                 Xvalid, Tvalid = Xparts[f], Tparts[f]
+                self.entrainement(Xtrain, Ttrain)
                 predict = [ self.prediction(xv) for xv in Xvalid ]
-                err_list.append(self.erreur(Tvalid, predict).mean())
-            return np.mean(err_list)
+                err += self.erreur(Tvalid, predict).mean()
+            return err / K
 
         goodL = self.lamb
         for l in np.logspace(-9, np.log10(2), num=10):
             self.lamb = l
             if (self.noyau == "rbf"):
                 goodSs = self.sigma_square
-                for ss in np.logspace(-9, np.log10(2), num=15):
+                for ss in np.logspace(-9, np.log10(2), num=10):
                     self.sigma_square = ss
                     err_mean = cross_validation_impl()
                     if err_mean < minErr:
@@ -172,7 +166,7 @@ class MAPnoyau:
             elif (self.noyau == "sigmoidal"): 
                 goodB = self.b
                 goodD = self.d
-                for b in np.logspace(-4, -2, num=10):
+                for b in np.logspace(-4, -2, num=5):
                     for d in np.logspace(-4, -2, num=5):
                         self.b = b
                         self.d = d

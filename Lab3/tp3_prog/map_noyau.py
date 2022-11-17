@@ -51,17 +51,21 @@ class MAPnoyau:
         d'apprentissage dans ``self.x_train``
         """
         #AJOUTER CODE ICI
-        rbf = lambda x1, x2: np.exp(-((x1.T @ x2 - x2.T @ x1) ** 2) / (2 * self.sigma_square))
-        lin = lambda x1, x2: (x1.T @ x2 + self.c)
-        poly = lambda x1, x2: (x1.T @ x2 + self.c) ** self.M
-        sig = lambda x1, x2: np.tanh(self.b * x1.T @ x2 + self.d)
+        def rbf(X, X2):
+            Xnorm = np.sum(X ** 2, axis=-1)
+            return np.exp(-(Xnorm[:,None] + Xnorm[None,:] - 2 * X @ X.T) / (2 *  self.sigma_square))
+        lin = lambda x1, x2: (x1 @ x2.T + self.c)
+        poly = lambda x1, x2: (x1 @ x2.T + self.c) ** self.M
+        sig = lambda x1, x2: np.tanh(self.b * x1 @ x2.T + self.d)
         kernels = { "rbf": rbf, "lineaire": lin, "polynomial": poly, "sigmoidal": sig }
         self.x_train = x_train
-        N, M = x_train.shape[0], x_train.shape[1]
-        x, y = np.meshgrid(np.arange(0, N), np.arange(0, M))
-        K = kernels[self.noyau](x_train[x, y], x_train[x, y])
-        K2 = np.array([ [ kernels[self.noyau](x_train[i,:], x_train[j,:]) for i in range(0, N) ] for j in range(0, N) ])
-        assert (np.allclose(K, K2) and K.shape == K2.shape)
+        N = self.x_train.shape[0]
+        # 1st method (Fast)
+        K = kernels[self.noyau](x_train, x_train)
+        # 2nd method (Slow)
+        # kernels["rbf"] = lambda x1, x2: np.exp(-(np.linalg.norm(x1 - x2) ** 2) / (2 * self.sigma_square))
+        # K2 = np.array([ [ kernels[self.noyau](x_train[i,:], x_train[j,:]) for i in range(0, N) ] for j in range(0, N) ])
+        # assert (K.shape == K2.shape and np.allclose(K, K2))
         self.a = np.linalg.inv(K + self.lamb * np.identity(N)) @ t_train
     
     
@@ -79,16 +83,19 @@ class MAPnoyau:
         sinon
         """
         #AJOUTER CODE ICI
-        rbf = lambda x1, x2: np.exp(-((x1.T @ x2 - x2.T @ x1) ** 2) / (2 * self.sigma_square))
-        lin = lambda x1, x2: (x1.T @ x2 + self.c)
-        poly = lambda x1, x2: (x1.T @ x2 + self.c) ** self.M
-        sig = lambda x1, x2: np.tanh(self.b * x1.T @ x2 + self.d)
+        rbf = lambda x1, x2: np.exp(-(np.linalg.norm(x1 - x2) ** 2) / (2 * self.sigma_square))
+        lin = lambda x1, x2: (x1 @ x2.T + self.c)
+        poly = lambda x1, x2: (x1 @ x2.T + self.c) ** self.M
+        sig = lambda x1, x2: np.tanh(self.b * x1 @ x2.T + self.d)
         kernels = { "rbf": rbf, "lineaire": lin, "polynomial": poly, "sigmoidal": sig }
-        N, M = self.x_train.shape[0], self.x_train.shape[1]
-        mx, my = np.meshgrid(np.arange(0, N), np.arange(0, M))
-        K = kernels[self.noyau](self.x_train[mx, my], x)
-        K2 = np.array([ kernels[self.noyau](self.x_train[i,:], x) for i in range(0, N) ])
-        assert (np.allclose(K, K2) and K.shape == K2.shape)
+        N = self.x_train.shape[0]
+        if (self.noyau != "rbf"):
+            # 1st method (Fast)
+            K = kernels[self.noyau](self.x_train, x)
+        else:
+            # 2nd method (Slow)
+            K = np.array([ kernels[self.noyau](self.x_train[i,:], x) for i in range(0, N) ])
+        # assert (K.shape == K2.shape and np.allclose(K, K2))
         y = self.a.T @ K
         return 1 if y > 0.5 else 0
 
@@ -138,11 +145,11 @@ class MAPnoyau:
             return err / K
 
         goodL = self.lamb
-        for l in np.logspace(-9, np.log10(2), num=5):
+        for l in np.logspace(-9, np.log10(2), num=10):
             self.lamb = l
             if (self.noyau == "rbf"):
                 goodSs = self.sigma_square
-                for ss in np.logspace(-9, np.log10(2), num=5):
+                for ss in np.logspace(-9, np.log10(2), num=15):
                     self.sigma_square = ss
                     err_mean = cross_validation_impl()
                     if err_mean < minErr:
@@ -156,7 +163,7 @@ class MAPnoyau:
                 start, end = 2, 7
                 if (self.noyau == "lineaire"):
                     start, end = 1, 2
-                for c in np.linspace(0, 5, num=5):
+                for c in np.linspace(0, 5, num=10):
                     for m in range(start, end, 1):
                         self.c = c
                         self.M = m

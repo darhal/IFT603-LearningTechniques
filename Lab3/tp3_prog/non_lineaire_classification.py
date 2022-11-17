@@ -68,7 +68,7 @@ def main():
     analyse_erreur(err_train, err_test)
 
     # Affichage
-    # mp.affichage(x_test, t_test)
+    mp.affichage(x_test, t_test)
 
 if __name__ == "__main__":
     main()

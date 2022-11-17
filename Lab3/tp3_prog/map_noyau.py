@@ -51,6 +51,7 @@ class MAPnoyau:
         d'apprentissage dans ``self.x_train``
         """
         #AJOUTER CODE ICI
+        # print(x_train)
         rbf = lambda x1, x2: np.exp(-(np.linalg.norm(x1 - x2) ** 2) / (2 * self.sigma_square))
         lin = lambda x1, x2: (x1.T @ x2 + self.c)
         poly = lambda x1, x2: (x1.T @ x2 + self.c) ** self.M
@@ -132,27 +133,23 @@ class MAPnoyau:
                 Ttrain = np.concatenate(Tparts[np.arange(K)!=f], axis=0)
                 self.entrainement(Xtrain, Ttrain)
                 # Predict and calculate error on validation fold
-                Xvalid = Xparts[f]
-                Tvalid = Tparts[f]
-                predict = self.prediction(Xvalid)
+                Xvalid, Tvalid = Xparts[f], Tparts[f]
+                predict = [ self.prediction(xv) for xv in Xvalid ]
                 err_list.append(self.erreur(Tvalid, predict).mean())
             return np.mean(err_list)
 
         goodL = self.lamb
-        l = 0.000000001
-        while (l <= 2):
+        for l in np.logspace(-9, np.log10(2), num=10):
             self.lamb = l
             if (self.noyau == "rbf"):
                 goodSs = self.sigma_square
-                ss = 0.000000001
-                while (ss <= 2):
+                for ss in np.logspace(-9, np.log10(2), num=15):
                     self.sigma_square = ss
                     err_mean = cross_validation_impl()
                     if err_mean < minErr:
                         minErr = err_mean
                         goodSs = self.sigma_square
                         goodL = self.lamb
-                    ss += 0.000000001
                 self.sigma_square = goodSs
             elif (self.noyau == "polynomial" or self.noyau == "lineaire"):
                 goodM = self.M
@@ -160,8 +157,7 @@ class MAPnoyau:
                 start, end = 2, 7
                 if (self.noyau == "lineaire"):
                     start, end = 1, 2
-                c = 0
-                while (c <= 5):
+                for c in np.linspace(0, 5, num=5):
                     for m in range(start, end, 1):
                         self.c = c
                         self.M = m
@@ -171,17 +167,13 @@ class MAPnoyau:
                             goodM = self.M
                             goodC = self.c
                             goodL = self.lamb
-                    c += 0.1
                 self.M = goodM
                 self.c = goodC
             elif (self.noyau == "sigmoidal"): 
                 goodB = self.b
                 goodD = self.d
-                start, end = 2, 6
-                b = 0.00001
-                while (b <= 0.01):
-                    d = 0.00001
-                    while (d <= 0.01):
+                for b in np.logspace(-4, -2, num=10):
+                    for d in np.logspace(-4, -2, num=5):
                         self.b = b
                         self.d = d
                         err_mean = cross_validation_impl()
@@ -190,11 +182,8 @@ class MAPnoyau:
                             goodB = self.b
                             goodD = self.d
                             goodL = self.lamb
-                        d += 0.00001
-                    b += 0.00001
                 self.b = goodB
                 self.d = goodD
-            l += 0.000000001
         self.lamb = goodL
         self.entrainement(x_tab, t_tab)
 

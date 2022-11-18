@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 #####
-# Vos Noms (Vos Matricules) .~= À MODIFIER =~.
-###
+# Céline ZHANG (zhac3201)
+# Omar CHIDA (chim2708)
+# Omar Aljubairi ()
+####
 
 import random
 import numpy as np

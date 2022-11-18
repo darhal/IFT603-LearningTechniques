@@ -5,7 +5,11 @@ Execution dans un terminal
 Exemple:
    python non_lineaire_classification.py rbf 100 200 0 0
 
-Vos Noms (Vos Matricules) .~= À MODIFIER =~.
+#####
+# Céline ZHANG (zhac3201)
+# Omar CHIDA (chim2708)
+# Omar Aljubairi ()
+####
 """
 
 import numpy as np

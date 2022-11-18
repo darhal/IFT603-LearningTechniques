@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 #####
-# VotreNom (VotreMatricule) .~= À MODIFIER =~.
-###
+# Céline ZHANG (zhac3201)
+# Omar CHIDA (chim2708)
+# Omar Aljubairi ()
+####
 
 import numpy as np
 

@@ -3,7 +3,7 @@
 #####
 # Céline ZHANG (zhac3201)
 # Omar CHIDA (chim2708)
-# Omar Aljubairi ()
+# Omar Aljubairi (aljo2901)
 ####
 
 import random

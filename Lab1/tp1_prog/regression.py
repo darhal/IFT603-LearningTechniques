@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+# Date 16/09/2022
+# Authors :
+# Omar CHIDA - chim2708
+# Céline ZHANG - zhac3201
 
 import numpy as np
 import sys
@@ -17,7 +21,6 @@ def warning(erreur_test, erreur_apprentissage, bruit):
     bruit: magnitude du bruit
     """
     # AJOUTER CODE ICI
-    # TODO : Check the validity of this
     if (erreur_test > bruit and erreur_apprentissage > bruit):
         print("Warning : Possibilite de sous-apprentissage")
     elif ((erreur_apprentissage <= bruit and erreur_test > 1.2 * erreur_apprentissage) or abs(erreur_apprentissage-erreur_test) > 2 * bruit):

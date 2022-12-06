@@ -58,6 +58,7 @@ class LinearClassifier(object):
             loss_train, dW = self.cross_entropy_loss(x_sample, y_sample, l2_reg)
 
             # Take gradient step
+            # print(dW)
             self.W -= lr * dW
 
             # Advance in data
@@ -87,11 +88,21 @@ class LinearClassifier(object):
 
          Returns a class label for each sample (a number between 0 and num_classes-1)
         """
-        class_label = np.zeros(X.shape[0])
         #############################################################################
         # TODO: Return the best class label.                                        #
         #############################################################################
-
+        if (X.ndim == 1):
+            if self.bias and X.shape[0] < self.W.shape[0]: X = augment(X)
+            predictions = X @ self.W
+            exp_predictions = np.exp(predictions)
+            probabilities = exp_predictions/np.sum(exp_predictions)
+            class_label = np.argmax(probabilities)
+        else:
+            if self.bias and X.shape[1] < self.W.shape[1]: X = augment(X)
+            predictions = X @ self.W
+            exp_predictions = np.exp(predictions)
+            probabilities = exp_predictions/np.sum(exp_predictions, axis=1, keepdims=True)
+            class_label = np.argmax(probabilities, axis=1)
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -114,7 +125,11 @@ class LinearClassifier(object):
         #############################################################################
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################
-
+        for i in range(0, X.shape[0]):
+            loss += self.cross_entropy_loss(X[i,:], y[i], reg)[0]
+            accu += self.predict(X[i,:]) == y[i]
+        loss /= X.shape[0]
+        accu /= X.shape[0]
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -137,8 +152,6 @@ class LinearClassifier(object):
         """
         # Initialize the loss and gradient to zero.
         loss = 0.0
-        dW = np.zeros_like(self.W)
-
         #############################################################################
         # TODO: Compute the softmax loss and its gradient.                          #
         # Store the loss in loss and the gradient in dW.                            #
@@ -147,7 +160,15 @@ class LinearClassifier(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient => eq.(4.109)                                         #
         #############################################################################
-
+        if self.bias and x.shape[0] < self.W.shape[0]: x = augment(x)
+        predictions = x @ self.W
+        exp_predictions = np.exp(predictions)
+        probabilities = exp_predictions/np.sum(exp_predictions)
+        loss = np.mean(-np.log(probabilities[y])) + 0.5 * reg * np.sum(self.W*self.W)
+        probabilities[y] -= 1
+        x = np.array([x])
+        probabilities = np.array([probabilities])
+        dW = (x.T @ probabilities) + reg * self.W
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################

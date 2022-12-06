@@ -88,16 +88,18 @@ class TwoLayerClassifier(object):
             #############################################################################
             # TODO: return the most probable class label for one sample.                #
             #############################################################################
-            return 0
+            return np.argmax(self.net.forward(x))
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
-
         elif len(x.shape) == 2:  # Predict on multiple samples
             #############################################################################
             # TODO: return the most probable class label for many samples               #
             #############################################################################
-            return np.zeros(x.shape[0])
+            classes = np.zeros(x.shape[0])
+            for i in range(x.shape[0]):
+                classes[i] = self.predict(x[i,:])
+            return classes
             #############################################################################
             #                          END OF YOUR CODE                                 #
             #############################################################################
@@ -114,15 +116,18 @@ class TwoLayerClassifier(object):
         - average accuracy as single float
         - average loss as single float
         """
-        if l2_r > 0:
-            self.net.l2_reg = l2_r
-
+        if l2_r > 0: self.net.l2_reg = l2_r
         loss = 0
         accu = 0
         #############################################################################
         # TODO: Compute the softmax loss & accuracy for a series of samples X,y .   #
         #############################################################################
-
+        for i in range(x.shape[0]):
+            scores = self.net.forward(x[i,:])
+            loss += self.net.cross_entropy_loss(scores, y[i])[0]
+            accu += self.predict(x[i,:]) == y[i]
+        loss /= x.shape[0]
+        accu /= x.shape[0]
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -138,12 +143,12 @@ class TwoLayerClassifier(object):
 
         Returns nothing
         """
-
         v_prev = self.momentum_cache_v_prev[id(w)]
         #############################################################################
         # TODO: update w with momentum                                              #
         #############################################################################
-        v=0 # remove this line
+        v = mu * v_prev - lr * dw
+        w += v
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
@@ -154,7 +159,6 @@ class TwoLayerNet(object):
     This class encodes a network with two layers or parameters : one between the input layer
      and the hidden layer and one between the hidden layer and the output layer
     """
-
     def __init__(self, in_size, hidden_size, num_classes, activation='relu', l2_r=0.0):
         self.in_size = in_size
         self.num_classes = num_classes
@@ -204,10 +208,6 @@ class TwoLayerNet(object):
         - loss as single float
         - gradient with respect to score; an array of same shape of scores
         """
-
-        loss = 999.9
-        dloss_dscores = np.zeros(np.size(scores))
-
         #############################################################################
         # TODO: Compute the softmax loss and its gradient.                          #
         # Store the loss in loss and the gradient in dW.                            #
@@ -216,11 +216,12 @@ class TwoLayerNet(object):
         # 3- Dont forget the regularization!                                        #
         # 4- Compute gradient with respect to the score => eq.(4.109) with phi_n=1  #
         #############################################################################
-
+        loss = -np.log(scores[y]) + 0.5 * self.l2_reg * (np.sum(self.layer1.W*self.layer1.W) + np.sum(self.layer2.W*self.layer2.W))
+        dloss_dscores = scores
+        dloss_dscores[y] -= 1
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
-
         return loss, dloss_dscores
 
 
@@ -259,19 +260,22 @@ class DenseLayer(object):
         Returns a tuple of:
         - f: a floating point value
         """
-        x = augment(x)
         #############################################################################
         # TODO: Compute forward pass.  Do not forget to add 1 to x in case of bias  #
         # C.f. function augment(x)                                                  #
         #############################################################################
-        f = self.W[1] ## REMOVE THIS LINE
-
+        x = augment(x)
+        f = x @ self.W
+        if (self.activation == "relu"): 
+            f = np.maximum(f, 0)
+        else:
+            exp_predictions = np.exp(f)
+            f = exp_predictions/np.sum(exp_predictions) 
         #############################################################################
         #                          END OF YOUR CODE                                 #
         #############################################################################
         self.last_x = x
         self.last_activ = f
-
         return f
 
     def backward(self, dnext_dout, l2_reg):
@@ -289,7 +293,6 @@ class DenseLayer(object):
             dnext_dW = self.last_x[:, np.newaxis].dot(dnext_dout[np.newaxis, :])
             dnext_dX = dnext_dout.dot(self.W.T)
         dnext_dX = dnext_dX[:-1]  # discard the gradient wrt the 1.0 of homogeneous coord
-
         self.dW += dnext_dW
         self.dW += l2_reg * self.W  # add regul. gradient
         return dnext_dX

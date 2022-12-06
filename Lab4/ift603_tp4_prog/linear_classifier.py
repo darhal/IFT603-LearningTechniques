@@ -164,7 +164,7 @@ class LinearClassifier(object):
         predictions = x @ self.W
         exp_predictions = np.exp(predictions)
         probabilities = exp_predictions/np.sum(exp_predictions)
-        loss = np.mean(-np.log(probabilities[y])) + 0.5 * reg * np.sum(self.W*self.W)
+        loss = -np.log(probabilities[y]) + 0.5 * reg * np.sum(self.W*self.W)
         probabilities[y] -= 1
         x = np.array([x])
         probabilities = np.array([probabilities])

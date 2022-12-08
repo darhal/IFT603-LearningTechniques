@@ -8,6 +8,9 @@
 import numpy as np
 
 class DataSet:
+    """
+    Class that contains a set of data along with their respective labels
+    """
     def __init__(self, features, labels):
         self.features = features
         self.labels = labels

@@ -10,6 +10,9 @@ import numpy as np
 from tools.DataSet import DataSet
 
 class DataLoader:
+    """
+    Class that helps with data loading and management.
+    """
     def __init__(self, filename,  class_col_name, excluded_features = set()):
         self.filename = filename
         self.features = []

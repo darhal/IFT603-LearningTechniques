@@ -12,7 +12,6 @@ import tools.data_management as dm
 
 
 def main():
-
     if len(sys.argv) < 5:
         helper = "\n Helper: python main.py train_or_test model train_data test_data\
                 \n\n\t  train_or_test: training or prediction\

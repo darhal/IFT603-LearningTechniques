@@ -8,7 +8,7 @@
 import csv
 import numpy as np
 
-class DataManagement:
+class DataSet:
     def __init__(self, type, model, train_data, test_data):
         self.type = type
         self.model = model

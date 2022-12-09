@@ -43,10 +43,11 @@ class DataLoader:
                         self.classes.append(label)
                     self.features.append([ v for k, v in row.items() if k not in self.excluded_features ])
                     self.labels.append(self.classes_to_index[label])
+                self.labels = np.array(self.labels).astype(np.int32)
+                self.features = np.array(self.features).astype(np.float)
     
     def get_dataset(self):
         return DataSet(self.features, self.labels)
 
     def get_label_name(self, label):
         return self.classes[label]
-

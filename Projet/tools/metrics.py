@@ -27,7 +27,7 @@ def calculate_performance_metrics(predictions, target):
     confusion_mat = confusion_matrix(predictions, target)
     accu, precision, sensitivity, specificity, fallout = confusion_matrix_perf_metrics(confusion_mat)
     precision_svg, recall_avg = np.mean(precision), np.mean(sensitivity)
-    f1_score = 2 * ((precision_svg*precision_svg) / (precision+recall_avg))
+    f1_score = 2 * ((precision_svg*precision_svg) / (precision_svg+precision_svg))
     return confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score
 
 
@@ -76,5 +76,5 @@ def confusion_matrix_perf_metrics(confusion_mat):
     # Fall out or false positive rate
     fallout = false_pos / (false_pos+true_neg)
     # Accurcy
-    accu = (true_pos+true_neg) / (true_pos+false_pos+false_neg+true_neg)
+    accu = (true_pos.sum()+true_neg.sum()) / (true_pos.sum()+false_pos.sum()+false_neg.sum()+true_neg.sum())
     return accu, precision, sensitivity, specificity, fallout

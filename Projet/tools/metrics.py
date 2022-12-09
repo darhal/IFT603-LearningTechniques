@@ -6,6 +6,28 @@
 ###
 
 import numpy as np
+import sklearn as sk
+
+def display_performance_metrics(predictions, target, extra_text=""):
+    """
+    Helper function that display all performance metrics related to predictions and target
+
+    Inputs :
+        - predictions : predictions vector (C,)
+        - target : ground truth vector (C,)
+    """
+    confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score = calculate_performance_metrics(predictions, target)
+    sk_accu = sk.metrics.accuracy_score(predictions, target)
+    sk_precision, sk_recall, sk_fscore, sk_support = sk.metrics.precision_recall_fscore_support(predictions, target, average='micro')
+    print(f"""Performance Metrics {extra_text}:
+    Accuracy : {accu} - {sk_accu}
+    Precision : {precision} - {sk_precision}
+    Sensitivity : {sensitivity} - {sk_recall}
+    Specificity : {specificity}
+    Fallout : {fallout}
+    F1 Score : {f1_score}
+    """)
+
 
 def calculate_performance_metrics(predictions, target):
     """
@@ -26,8 +48,7 @@ def calculate_performance_metrics(predictions, target):
     """
     confusion_mat = confusion_matrix(predictions, target)
     accu, precision, sensitivity, specificity, fallout = confusion_matrix_perf_metrics(confusion_mat)
-    precision_svg, recall_avg = np.mean(precision), np.mean(sensitivity)
-    f1_score = 2 * ((precision_svg*precision_svg) / (precision_svg+precision_svg))
+    f1_score = 2 * ((precision*sensitivity) / (precision+specificity))
     return confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score
 
 
@@ -43,9 +64,9 @@ def confusion_matrix(predictions, target):
         - confusion_mat : confusion matrix (CxC)
     """
     C = len(np.unique(target))
-    confusion_mat = np.zeros((C, C))
+    confusion_mat = np.zeros((C, C), dtype="int32")
     for i in range(len(target)):
-        confusion_mat[target[i]][predictions[i]] += 1
+        confusion_mat[predictions[i]][target[i]] += 1
     return confusion_mat
 
 
@@ -63,18 +84,23 @@ def confusion_matrix_perf_metrics(confusion_mat):
         - specificity : specificity vector (C,)
         - fallout : fallout vector (C,)
     """
+    total = confusion_mat.sum()
     true_pos = np.diag(confusion_mat)
     false_pos = confusion_mat.sum(axis=0) - true_pos
     false_neg = confusion_mat.sum(axis=1) - true_pos
-    true_neg = confusion_mat.sum() - (false_pos + false_neg + true_pos)
+    true_neg = total - (false_pos + false_neg + true_pos)
+    true_pos = true_pos.sum()
+    false_pos = false_pos.sum()
+    false_neg = false_neg.sum()
+    true_neg = true_neg.sum() 
     # Precision or positive predictive value
     precision = true_pos / (true_pos+false_pos)
     # Sensitivity, hit rate, recall, or true positive rate
     sensitivity = true_pos / (true_pos+false_neg)
     # Specificity or true negative rate
-    specificity = true_neg / (true_neg+false_pos) 
+    specificity = true_neg / (true_neg+false_pos)
     # Fall out or false positive rate
     fallout = false_pos / (false_pos+true_neg)
     # Accurcy
-    accu = (true_pos.sum()+true_neg.sum()) / (true_pos.sum()+false_pos.sum()+false_neg.sum()+true_neg.sum())
+    accu = true_pos / total
     return accu, precision, sensitivity, specificity, fallout

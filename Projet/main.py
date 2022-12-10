@@ -9,8 +9,11 @@ import sys
 import numpy as np
 import sklearn as sk
 from tools.DataLoader import DataLoader
+from tools.ModelTester import ModelTester
 from models import LinearModels
 from tools.Metrics import *
+
+from models.RidgeRegression import RidgeRegression
 
 
 dl = DataLoader("data/train.csv", class_col_name="species", excluded_features={"id"})
@@ -42,13 +45,18 @@ def measure_model_performance(model, train_set, test_set):
     display_performance_metrics(pred_test, test_set.labels, "(Test data)")
 
 # Linear Regression : 
-measure_model_performance(LinearModels.LinearRegression(), train_set, test_set)
+mt = ModelTester("LinearRegression")
+mt.test(train_set, test_set)
 
 # Ridge Regression : 
-measure_model_performance(LinearModels.RidgeRegression(), train_set, test_set)
+mt = ModelTester("RidgeRegression", core_model__alpha=np.logspace(-9, 0.3, num=20))
+mt.test(train_set, test_set)
+#measure_model_performance(LinearModels.RidgeRegression(), train_set, test_set)
 
-# Logistic Regression : 
-measure_model_performance(LinearModels.LogisticClassifier(), train_set, test_set)
+# Logistic Regression :
+mt = ModelTester("LogisticClassifier", core_model__C=np.logspace(-9, 0.3, num=20))
+mt.test(train_set, test_set)
 
 # Perceptron : 
-measure_model_performance(LinearModels.SinglePerceptron(), train_set, test_set)
+mt = ModelTester("SinglePerceptron", core_model__alpha=np.logspace(-9, 0.3, num=20))
+mt.test(train_set, test_set)

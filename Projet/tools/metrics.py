@@ -16,16 +16,29 @@ def display_performance_metrics(predictions, target, extra_text=""):
         - predictions : predictions vector (C,)
         - target : ground truth vector (C,)
     """
-    confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score = calculate_performance_metrics(predictions, target)
-    sk_accu = sk.metrics.accuracy_score(predictions, target)
-    sk_precision, sk_recall, sk_fscore, sk_support = sk.metrics.precision_recall_fscore_support(predictions, target, average='micro')
+    accu, precision, sensitivity, specificity, fallout, f1_score = get_performance_metrics(predictions, target)
     print(f"""Performance Metrics {extra_text}:
-    Accuracy : {accu} - {sk_accu}
-    Precision : {precision} - {sk_precision}
-    Sensitivity : {sensitivity} - {sk_recall}
+    Accuracy : {accu}
+    Precision : {precision}
+    Sensitivity : {sensitivity}
     Specificity : {specificity}
     Fallout : {fallout}
     F1 Score : {f1_score}""")
+    return [accu, precision, sensitivity, specificity, fallout, f1_score]
+
+
+def get_performance_metrics(predictions, target):
+    """
+    Helper function that get all performance metrics related to predictions and target
+
+    Inputs :
+        - predictions : predictions vector (C,)
+        - target : ground truth vector (C,)
+    """
+    confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score = calculate_performance_metrics(predictions, target)
+    #sk_accu = sk.metrics.accuracy_score(predictions, target)
+    #sk_precision, sk_recall, sk_fscore, sk_support = sk.metrics.precision_recall_fscore_support(predictions, target, average='micro')
+    return [accu, precision, sensitivity, specificity, fallout, f1_score]
 
 
 def calculate_performance_metrics(predictions, target):

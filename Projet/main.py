@@ -33,26 +33,22 @@ train_set, test_set = dataset.split_by_class([0.9])
 #print(len(train_set))
 #print(len(test_set))
 
+def measure_model_performance(model, train_set, test_set):
+    model.train(train_set)
+    pred_train = model.predict(train_set.features)
+    pred_test = model.predict(test_set.features)
+    print(f"~~~~~~~~~~~~~~~ {type(model)} ~~~~~~~~~~~~~~~")
+    display_performance_metrics(pred_train, train_set.labels, "(Train data)")
+    display_performance_metrics(pred_test, test_set.labels, "(Test data)")
+
 # Linear Regression : 
-lr = LinearModels.LinearRegression()
-lr.train(train_set.features, train_set.labels)
-pred_train = lr.predict(train_set.features)
-pred_test = lr.predict(test_set.features)
-display_performance_metrics(pred_train, train_set.labels, "(Train data)")
-display_performance_metrics(pred_test, test_set.labels, "(Test data)")
+measure_model_performance(LinearModels.LinearRegression(), train_set, test_set)
 
 # Ridge Regression : 
-rr = LinearModels.RidgeRegression()
-rr.train(train_set.features, train_set.labels)
-pred_train = rr.predict(train_set.features)
-pred_test = rr.predict(test_set.features)
-display_performance_metrics(pred_train, train_set.labels, "(Train data)")
-display_performance_metrics(pred_test, test_set.labels, "(Test data)")
+measure_model_performance(LinearModels.RidgeRegression(), train_set, test_set)
 
 # Logistic Regression : 
-rr = LinearModels.LogisticCLassifier()
-rr.train(train_set.features, train_set.labels)
-pred_train = rr.predict(train_set.features)
-pred_test = rr.predict(test_set.features)
-display_performance_metrics(pred_train, train_set.labels, "(Train data)")
-display_performance_metrics(pred_test, test_set.labels, "(Test data)")
+measure_model_performance(LinearModels.LogisticClassifier(), train_set, test_set)
+
+# Perceptron : 
+measure_model_performance(LinearModels.SinglePerceptron(), train_set, test_set)

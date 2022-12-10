@@ -1,3 +1,4 @@
 from .LinearRegression import LinearRegression
 from .RidgeRegression import RidgeRegression
-from .LogisticCLassifier import LogisticCLassifier
+from .LogisticClassifier import LogisticClassifier
+from .SinglePerceptron import SinglePerceptron

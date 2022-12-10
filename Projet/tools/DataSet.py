@@ -23,7 +23,7 @@ class DataSet:
         return self.labels.shape[0]
     
     def __str__(self):
-        return f"Labels : {self.labels}\nFeatures : {self.features}"
+        return f"Labels : {self.labels} - Features : {self.features}"
     
     def append(self, dataset):
         if (self.labels.size == 0):
@@ -37,6 +37,23 @@ class DataSet:
         zippedData = list(zip(self.features, self.labels))
         random.shuffle(zippedData)
         self.features, self.labels = zip(*zippedData)
+    
+    def split_in_folds(self, folds):
+        features_split = np.array(np.array_split(self.features, folds), dtype=object)
+        labels_split = np.array(np.array_split(self.labels, folds), dtype=object)
+        dataset_folds = [ 
+            [ 
+                DataSet(
+                    np.concatenate(features_split[np.arange(folds)!=f], axis=0), 
+                    np.concatenate(labels_split[np.arange(folds)!=f], axis=0)
+                ), 
+                DataSet(
+                    features_split[f], 
+                    labels_split[f]
+                ), 
+            ] for f in range(folds)
+        ]
+        return dataset_folds
 
     def get_random_samples(self, percentages):
         count_arr = [int(percentages[0] * len(self.labels))]

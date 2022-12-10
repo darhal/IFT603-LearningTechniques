@@ -25,8 +25,7 @@ def display_performance_metrics(predictions, target, extra_text=""):
     Sensitivity : {sensitivity} - {sk_recall}
     Specificity : {specificity}
     Fallout : {fallout}
-    F1 Score : {f1_score}
-    """)
+    F1 Score : {f1_score}""")
 
 
 def calculate_performance_metrics(predictions, target):

@@ -3,3 +3,4 @@ from .RidgeRegression import RidgeRegression
 from .LogisticClassifier import LogisticClassifier
 from .SinglePerceptron import SinglePerceptron
 from .SupportVectorMachine import SupportVectorMachine
+from .MultiLayerPerceptron import MultiLayerPerceptron

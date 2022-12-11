@@ -55,7 +55,7 @@ def calculate_performance_metrics(classes, target):
         - confusion_mat : confusion matrix (CxC)
         - accu : accuracy (float)
         - precision : precision vector (C,)
-        - sensitivity : sensitivty or recall vector (C,)
+        - sensitivity : sensitivity or recall vector (C,)
         - specificity : specificity vector (C,)
         - fallout : fallout vector (C,)
         - f1_score : F1 score (float)

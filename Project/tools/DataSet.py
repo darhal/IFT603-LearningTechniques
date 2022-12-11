@@ -67,7 +67,7 @@ class DataSet:
         return datasets
     
     def group_by_class(self):
-        # Sort based on label idicies
+        # Sort based on label indicies
         sorted_labels_idx = self.labels.argsort()
         sorted_labels = self.labels[sorted_labels_idx]
         sorted_features = self.features[sorted_labels_idx]

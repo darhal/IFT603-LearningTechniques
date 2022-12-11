@@ -27,6 +27,6 @@ class GradientBoostedTrees(BasicModel):
         """
         BasicModel.__init__(
             self,
-            GradientBoostingClassifier(learning_rate=0.01),
+            GradientBoostingClassifier(learning_rate=0.01, probability=True),
             stand_trans
         )

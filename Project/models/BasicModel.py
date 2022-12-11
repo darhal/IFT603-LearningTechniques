@@ -5,6 +5,7 @@
 # Omar CHIDA (chim2708)
 ###
 
+from itertools import cycle
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -43,6 +44,25 @@ class BasicModel:
         self.pipe = Pipeline(steps=pipe_steps)
         self.model = self.pipe
         self.hparams_config = hparams_config
+
+    def train(self, dataset, folds=5):
+        """
+        Initiate the train of the whole pipeline. 
+        If hparams are specificed then hparams search phase will be excuted.
+
+        Inputs : 
+            - dataset : dataset that contains train data
+            - folds : number of folds to use for cross-validation
+        """
+        if (len(self.hparams_config) != 0 and folds != 0):
+            self.model = GridSearchCV(
+                self.pipe,
+                self.hparams_config,
+                cv=StratifiedKFold(folds, shuffle=True),
+                n_jobs=4,
+                return_train_score=True
+            )
+        return self.model.fit(dataset.features, dataset.labels)
 
     def predict(self, features):
         """
@@ -85,31 +105,12 @@ class BasicModel:
         """
         return np.mean((predictions - labels) ** 2)
 
-    def train(self, dataset, folds=5):
-        """
-        Initiate the train of the whole pipeline. 
-        If hparams are specificed then hparams search phase will be excuted.
-
-        Inputs : 
-            - dataset : dataset that contains train data
-            - folds : number of folds to use for cross-validation
-        """
-        if (len(self.hparams_config) != 0 and folds != 0):
-            self.model = GridSearchCV(
-                self.pipe,
-                self.hparams_config,
-                cv=StratifiedKFold(folds, shuffle=True),
-                n_jobs=4,
-                return_train_score=True
-            )
-        return self.model.fit(dataset.features, dataset.labels)
-
-    def visualise_hyperparam_curve(self, axes, title=""):
+    def visualise_hyperparam_curve(self, axis, title=""):
         """
         Helper function that visualise hyper param curve and the evolution of accuracy.
 
         Inputs : 
-            - axes : matplotlib axis
+            - axis : matplotlib axis
             - title : custom title for the subgraph
         """
         if len(self.hparams_config) == 0:
@@ -118,9 +119,7 @@ class BasicModel:
         components = list(self.hparams_config.keys())
         for i in range(0, len(self.hparams_config.keys())):
             components_col = f"param_{components[i]}"
-            best_clfs = results.groupby(components_col).apply(
-                lambda g: g.nlargest(1, "mean_test_score"))
-            best_clfs.plot(x=components_col, y="mean_test_score",
-                           legend=False, ax=axes[i])
-            axes[i].set_xlabel(components[i])
-            axes[i].set_title(f"{title}\n{components[i]}")
+            best_clfs = results.groupby(components_col).apply(lambda g: g.nlargest(1, "mean_test_score"))
+            best_clfs.plot(x=components_col, y="mean_test_score", legend=False, ax=axis[i])
+            axis[i].set_xlabel(components[i])
+            axis[i].set_title(f"{title}")

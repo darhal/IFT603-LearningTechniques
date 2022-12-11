@@ -66,8 +66,7 @@ class DataLoader:
                     if (label not in self.classes_to_index):
                         self.classes_to_index[label] = len(self.classes)
                         self.classes.append(label)
-                    self.features.append(
-                        [v for k, v in row.items() if k not in self.excluded_features])
+                    self.features.append([v for k, v in row.items() if k not in self.excluded_features])
                     self.labels.append(self.classes_to_index[label])
                 self.labels = np.array(self.labels).astype(np.int32)
                 self.features = np.array(self.features).astype(np.float)

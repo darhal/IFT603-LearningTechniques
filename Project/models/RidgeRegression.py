@@ -29,5 +29,5 @@ class RidgeRegression(BasicModel):
             self, 
             RidgeClassifier(max_iter=1000),
             stand_trans,
-            core_model__alpha=np.logspace(-9, 0.5, num=10)
+            core_model__alpha=np.logspace(-7, 0.5, num=20)
         )

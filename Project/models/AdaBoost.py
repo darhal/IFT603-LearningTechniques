@@ -29,5 +29,5 @@ class AdaBoost(BasicModel):
             self,
             AdaBoostClassifier(),
             stand_trans,
-            core_model__learning_rate=np.linspace(0.1, 5.0, num=10)
+            core_model__learning_rate=np.linspace(0.1, 10.0, num=20)
         )

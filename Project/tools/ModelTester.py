@@ -54,12 +54,13 @@ class ModelTester():
         if (show_plot):
             fig, ax = plt.subplots(len(components), len(self.models), figsize=(14, 8), dpi=120)
             fig.supylabel("Classification accuracy")
+            fig.supxlabel(f"Hyper-param curve for \n{self.class_name}")
         for ax_idx, model in enumerate(self.models):
             model.train(train_set)
             if (show_plot):
                 model.visualise_hyperparam_curve(
                     ax[:, ax_idx] if len(components) > 1 else [ax[ax_idx]],
-                    title=f"Hyper-param curve for \n{self.class_name}(Stand={self.model_configs[ax_idx]})"
+                    title=f"Stand={self.model_configs[ax_idx]}"
                 )
             probs, classes = model.predict_probs(train_set.features)
             perf_matrix.append(get_performance_metrics(classes, train_set.labels, probs))
@@ -77,7 +78,7 @@ class ModelTester():
             - panda data frame containing perf metrics for different models
         """
         perf_matrix = []
-        for m in self.models:
+        for i, m in enumerate(self.models):
             probs, classes = m.predict_probs(test_set.features)
             perf_matrix.append(get_performance_metrics(classes, test_set.labels, probs))
         return self.build_perf_dataframe(perf_matrix)
@@ -95,7 +96,8 @@ class ModelTester():
             data=np.array(perf_matrix).T,
             columns=[f"{self.class_name} (Stand={config})" for config in self.model_configs],
             index=["Accuracy", "Precision", "Sensitivity",
-                   "Specificity", "Fallout", "F1 Score", "Log loss"]
+                   "Specificity", "Fallout", "F1 Score", 
+                   "ROC AUC", "Log loss"]
         )
 
     def visualise_learning_curve(self, dataset):

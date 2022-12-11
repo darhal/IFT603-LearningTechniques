@@ -30,6 +30,6 @@ class SupportVectorMachine(BasicModel):
             self,
             SVC(kernel=kernel, max_iter=3000, C=1.0, probability=True),
             stand_trans, 
-            core_model__C=np.logspace(-6, 1, num=10),
-            core_model__gamma=np.logspace(-6, 1, num=10)
+            core_model__C=np.logspace(-7, 1, num=10),
+            core_model__gamma=np.logspace(-7, 1, num=10)
         )

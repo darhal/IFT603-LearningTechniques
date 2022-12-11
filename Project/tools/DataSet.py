@@ -76,7 +76,7 @@ class DataSet:
             self.features = np.append(self.features, dataset.features, axis=0)
             self.labels = np.append(self.labels, dataset.labels, axis=0)
 
-    def shuffle_data(self):
+    def shuffle(self):
         """
         Suffles the data contained in the dataset
 
@@ -155,7 +155,7 @@ class DataSet:
             grouped_sets.append(DataSet(f, k))
         return grouped_sets
 
-    def split_by_class(self, percentages):
+    def stratified_split(self, percentages):
         """
         Splits the dataset in a stratified manner according to the percentages array
 

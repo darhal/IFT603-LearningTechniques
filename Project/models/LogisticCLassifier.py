@@ -15,7 +15,7 @@ class LogisticClassifier(BasicModel):
     Logistic regression classifier inherits from BasicModel
 
     Hyper-params:
-        - C : varies from 10e-6 to 10e1 logarthimically
+        - C : varies from 10e-7 to 10e1 logarthimically
     """
     
     def __init__(self, stand_trans=False):
@@ -29,5 +29,5 @@ class LogisticClassifier(BasicModel):
             self,
             LogisticRegression(max_iter=3000),
             stand_trans,
-            core_model__C=np.logspace(-6, 1, num=10)
+            core_model__C=np.logspace(-7, 1, num=20)
         )

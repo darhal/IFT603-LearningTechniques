@@ -29,5 +29,5 @@ class SinglePerceptron(BasicModel):
             self,
             Perceptron(eta0=0.001, penalty='l2', max_iter=3000),
             stand_trans,
-            core_model__alpha=np.logspace(-9, 0.5, num=10)
+            core_model__alpha=np.logspace(-7, 0.5, num=20)
         )

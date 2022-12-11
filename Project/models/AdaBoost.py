@@ -6,28 +6,28 @@
 #####
 
 import numpy as np
-from sklearn.linear_model import RidgeClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from models.BasicModel import BasicModel
 
 
-class RidgeRegression(BasicModel):
+class AdaBoost(BasicModel):
     """
-    RidgeRegression classifier inherits from BasicModel
+    Ada Boost Classifier classifier inherits from BasicModel
 
-    Hyper-params :
-        - alpha : varies logarthimically between 10e-9 and 10e0.5
+    Hyper-params : 
+        - learning_rate : varies from 0.1 to 5 linearly
     """
-    
+
     def __init__(self, stand_trans=False):
         """
-        RidgeRegression constructor
+        AdaBoost constructor
 
         Inputs : 
             - stand_trans : wether data should be standardised or not
         """
         BasicModel.__init__(
-            self, 
-            RidgeClassifier(max_iter=1000),
+            self,
+            AdaBoostClassifier(),
             stand_trans,
-            core_model__alpha=np.logspace(-9, 0.5, num=10)
+            core_model__learning_rate=np.linspace(0.1, 5.0, num=10)
         )

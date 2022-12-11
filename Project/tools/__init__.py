@@ -1,1 +1,1 @@
-__all__ = ["DataLoader", "DataSet", "Metrics"]
+__all__ = ["DataLoader", "DataSet", "Metrics", "ModelTester"]

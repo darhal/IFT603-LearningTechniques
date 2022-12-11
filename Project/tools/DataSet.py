@@ -37,10 +37,12 @@ class DataSet:
         zippedData = list(zip(self.features, self.labels))
         random.shuffle(zippedData)
         self.features, self.labels = zip(*zippedData)
+        self.features = np.array(self.features).astype(np.float)
+        self.labels = np.array(self.labels).astype(np.int32)
     
     def split_in_folds(self, folds):
-        features_split = np.array(np.array_split(self.features, folds), dtype=object)
-        labels_split = np.array(np.array_split(self.labels, folds), dtype=object)
+        features_split = np.array_split(self.features, folds)
+        labels_split = np.array_split(self.labels, folds)
         dataset_folds = [ 
             [ 
                 DataSet(
@@ -59,8 +61,8 @@ class DataSet:
         count_arr = [int(percentages[0] * len(self.labels))]
         for p in percentages[1:]:
             count_arr.append(int((p + count_arr[-1]) * len(self.labels)))
-        features = np.array(np.array_split(self.features, count_arr), dtype='object')
-        labels = np.array(np.array_split(self.labels, count_arr), dtype='object')
+        features = np.array_split(self.features, count_arr)
+        labels = np.array_split(self.labels, count_arr)
         datasets = [ DataSet(features[i], labels[i]) for i in range(0, len(labels)) ]
         return datasets
     

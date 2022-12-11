@@ -1,6 +1,6 @@
 numpy
 scipy
-scikit-learn
-matplotlib
+scikit-learn==1.2.0
+matplotlib==3.6.0
 ipython
 jupyter

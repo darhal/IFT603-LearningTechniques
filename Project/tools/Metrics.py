@@ -18,14 +18,14 @@ def display_performance_metrics(classes, target, probs=None, extra_text=""):
     """
     log_loss, accu, precision, sensitivity, specificity, fallout, f1_score = get_performance_metrics(classes, target)
     print(f"""Performance Metrics {extra_text}:
-    Log loss : {log_loss}
     Accuracy : {accu}
     Precision : {precision}
     Sensitivity : {sensitivity}
     Specificity : {specificity}
     Fallout : {fallout}
-    F1 Score : {f1_score}""")
-    return [log_loss, accu, precision, sensitivity, specificity, fallout, f1_score]
+    F1 Score : {f1_score}
+    Log loss : {log_loss}""")
+    return [accu, precision, sensitivity, specificity, fallout, f1_score, log_loss]
 
 
 def get_performance_metrics(classes, target, probs=None):
@@ -40,7 +40,7 @@ def get_performance_metrics(classes, target, probs=None):
     log_loss = sk.metrics.log_loss(target, probs) if isinstance(probs, np.ndarray) else "Not Applicable"
     #sk_accu = sk.metrics.accuracy_score(predictions, target)
     #sk_precision, sk_recall, sk_fscore, sk_support = sk.metrics.precision_recall_fscore_support(predictions, target, average='micro')
-    return [log_loss, accu, precision, sensitivity, specificity, fallout, f1_score]
+    return [accu, precision, sensitivity, specificity, fallout, f1_score, log_loss]
 
 
 def calculate_performance_metrics(classes, target):

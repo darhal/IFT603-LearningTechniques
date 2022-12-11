@@ -16,17 +16,16 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import StratifiedKFold
 
 class BasicModel:
-    def __init__(self, core_model=None, norm_trans=False, pca_trans=False, **hparams):
+    def __init__(self, core_model=None, stand_trans=False, pca_trans=False, **hparams_config):
         pipe_steps = []
-        if (norm_trans):
+        if (stand_trans):
             pipe_steps.append(("scaler", StandardScaler()))
         if (pca_trans):
             pipe_steps.append(("pca", PCA()))
         pipe_steps.append(("core_model", core_model))
         self.pipe = Pipeline(steps=pipe_steps)
         self.model = self.pipe
-        self.model.set_params(**hparams)
-        self.hyperparams = hparams
+        self.hparams_config = hparams_config
     
     def predict(self, features):
         return self.model.predict(features)
@@ -43,20 +42,26 @@ class BasicModel:
     def erreur(self, predictions, labels):
         return np.mean(np.abs(predictions - labels))
 
-    def _train(self, dataset, folds=6, **hparams_config):
-        if (len(self.hyperparams) != 0 and folds != 0 and len(hparams_config) != 0):
-            self.model = GridSearchCV(self.pipe, hparams_config, cv=StratifiedKFold(folds, shuffle=True), n_jobs=4, return_train_score=True)
+    def train(self, dataset, folds=5):
+        if (len(self.hparams_config) != 0 and folds != 0):
+            self.model = GridSearchCV(
+                self.pipe, 
+                self.hparams_config, 
+                cv=StratifiedKFold(folds, shuffle=True), 
+                n_jobs=4, 
+                return_train_score=True
+            )
         return self.model.fit(dataset.features, dataset.labels)
 
-    def visualise_train_perf(self, axes):
-        if len(self.hyperparams) == 0:
+    def visualise_hyperparam_curve(self, axes, title=""):
+        if len(self.hparams_config) == 0:
             return
         results = pd.DataFrame(self.model.cv_results_)
-        components = list(self.hyperparams.keys())
-        for i in range(0, len(self.hyperparams.keys())):
+        components = list(self.hparams_config.keys())
+        for i in range(0, len(self.hparams_config.keys())):
             components_col = f"param_{components[i]}"
             best_clfs = results.groupby(components_col).apply(lambda g: g.nlargest(1, "mean_test_score"))
             best_clfs.plot(x=components_col, y="mean_test_score", legend=False, ax=axes[i])
-            axes[i].set_ylabel("Classification accuracy")
             axes[i].set_xlabel(components[i])
+            axes[i].set_title(f"{title}\n{components[i]}")
     

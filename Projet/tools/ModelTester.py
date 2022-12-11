@@ -28,28 +28,28 @@ class ModelTester():
         for i in range(len(self.models)):
             self.models[i].train(train_set)
             if (show_plot): self.models[i].visualise_train_perf(ax[:,i] if len(components) > 1 else [ax[i]])
-            train_res = self.models[i].predict(train_set.features)
-            perf_matrix.append(get_performance_metrics(train_res, train_set.labels))
+            probs, classes = self.models[i].predict_probs(train_set.features)
+            perf_matrix.append(get_performance_metrics(classes, train_set.labels, probs))
         if show_plot: plt.show()
         return self.build_perf_dataframe(perf_matrix)
     
     def predict(self, test_set):
         perf_matrix = []
         for m in self.models:
-            pred = m.predict(test_set.features)
-            perf_matrix.append(get_performance_metrics(pred, test_set.labels))
+            probs, classes = m.predict_probs(test_set.features)
+            perf_matrix.append(get_performance_metrics(classes, test_set.labels, probs))
         return self.build_perf_dataframe(perf_matrix)
 
     def build_perf_dataframe(self, perf_matrix):
         return pd.DataFrame(
             data=np.array(perf_matrix).T,
             columns=[f"{self.class_name} (Norm={config[0]},PCA={config[1]})" for config in self.model_configs],
-            index=["Accuracy", "Precision", "Sensitivity", "Specificity", "Fallout", "F1 Score"]
+            index=["Log loss", "Accuracy", "Precision", "Sensitivity", "Specificity", "Fallout", "F1 Score"]
         )
     
     def test(self, train_set, test_set):
         print(f"~~~~~~~~~~~~~~~ TRAIN SET ~~~~~~~~~~~~~~~")
-        print(self.train(train_set))
+        display(self.train(train_set))
         print(f"~~~~~~~~~~~~~~~ TEST SET ~~~~~~~~~~~~~~~")
-        print(self.predict(test_set))
+        display(self.predict(test_set))
     

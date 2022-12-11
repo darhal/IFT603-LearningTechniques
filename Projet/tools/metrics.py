@@ -8,46 +8,48 @@
 import numpy as np
 import sklearn as sk
 
-def display_performance_metrics(predictions, target, extra_text=""):
+def display_performance_metrics(classes, target, probs=None, extra_text=""):
     """
-    Helper function that display all performance metrics related to predictions and target
+    Helper function that display all performance metrics related to classes and target
 
     Inputs :
-        - predictions : predictions vector (C,)
+        - classes : predictions vector (C,)
         - target : ground truth vector (C,)
     """
-    accu, precision, sensitivity, specificity, fallout, f1_score = get_performance_metrics(predictions, target)
+    log_loss, accu, precision, sensitivity, specificity, fallout, f1_score = get_performance_metrics(classes, target)
     print(f"""Performance Metrics {extra_text}:
+    Log loss : {log_loss}
     Accuracy : {accu}
     Precision : {precision}
     Sensitivity : {sensitivity}
     Specificity : {specificity}
     Fallout : {fallout}
     F1 Score : {f1_score}""")
-    return [accu, precision, sensitivity, specificity, fallout, f1_score]
+    return [log_loss, accu, precision, sensitivity, specificity, fallout, f1_score]
 
 
-def get_performance_metrics(predictions, target):
+def get_performance_metrics(classes, target, probs=None):
     """
     Helper function that get all performance metrics related to predictions and target
 
     Inputs :
-        - predictions : predictions vector (C,)
+        - classes : predictions vector (C,)
         - target : ground truth vector (C,)
     """
-    confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score = calculate_performance_metrics(predictions, target)
+    confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score = calculate_performance_metrics(classes, target)
+    log_loss = sk.metrics.log_loss(target, probs) if isinstance(probs, np.ndarray) else "Not Applicable"
     #sk_accu = sk.metrics.accuracy_score(predictions, target)
     #sk_precision, sk_recall, sk_fscore, sk_support = sk.metrics.precision_recall_fscore_support(predictions, target, average='micro')
-    return [accu, precision, sensitivity, specificity, fallout, f1_score]
+    return [log_loss, accu, precision, sensitivity, specificity, fallout, f1_score]
 
 
-def calculate_performance_metrics(predictions, target):
+def calculate_performance_metrics(classes, target):
     """
     Computes all performance metrics related to given predictions 
     with respect to the ground truth.
 
     Inputs :
-        - predictions : predictions vector (C,)
+        - classes : predictions vector (C,)
         - target : ground truth vector (C,)
     Outputs :
         - confusion_mat : confusion matrix (CxC)
@@ -58,19 +60,19 @@ def calculate_performance_metrics(predictions, target):
         - fallout : fallout vector (C,)
         - f1_score : F1 score (float)
     """
-    confusion_mat = confusion_matrix(predictions, target)
+    confusion_mat = confusion_matrix(classes, target)
     accu, precision, sensitivity, specificity, fallout = confusion_matrix_perf_metrics(confusion_mat)
     f1_score = 2 * ((precision*sensitivity) / (precision+specificity))
     return confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score
 
 
-def confusion_matrix(predictions, target):
+def confusion_matrix(classes, target):
     """
     Computes the confusion matrix related to given predictions
     with respect to a ground truth vector
 
     Inputs :
-        - predictions : predictions vector (C,)
+        - classes : predictions vector (C,)
         - target : ground truth vector (C,)
     Outputs :
         - confusion_mat : confusion matrix (CxC)
@@ -78,7 +80,7 @@ def confusion_matrix(predictions, target):
     C = len(np.unique(target))
     confusion_mat = np.zeros((C, C), dtype="int32")
     for i in range(len(target)):
-        confusion_mat[predictions[i]][target[i]] += 1
+        confusion_mat[classes[i]][target[i]] += 1
     return confusion_mat
 
 

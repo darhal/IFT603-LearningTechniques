@@ -30,6 +30,15 @@ class BasicModel:
     
     def predict(self, features):
         return self.model.predict(features)
+
+    def predict_probs(self, features):
+        if (hasattr(self.model, 'predict_proba')):
+            probs = self.model.predict_proba(features)
+            classes = np.argmax(probs, axis=1)
+        else:
+            probs = None
+            classes = self.predict(features)
+        return probs, classes
     
     def erreur(self, predictions, labels):
         return np.mean(np.abs(predictions - labels))

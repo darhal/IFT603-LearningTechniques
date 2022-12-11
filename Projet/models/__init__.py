@@ -1,1 +1,1 @@
-__all__ = ["LinearModels"]
+__all__ = ["Models"]

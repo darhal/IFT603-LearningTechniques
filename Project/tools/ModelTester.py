@@ -67,7 +67,7 @@ class ModelTester():
         if show_plot:
             fig.tight_layout()
             plt.show()
-        return self.build_perf_dataframe(perf_matrix)
+        return self.build_perf_dataframe(perf_matrix, "TRAIN")
 
     def predict(self, test_set):
         """
@@ -82,24 +82,23 @@ class ModelTester():
         for i, m in enumerate(self.models):
             probs, classes = m.predict_probs(test_set.features)
             perf_matrix.append(get_performance_metrics(classes, test_set.labels, probs))
-        return self.build_perf_dataframe(perf_matrix)
+        return self.build_perf_dataframe(perf_matrix, "TEST")
 
-    def build_perf_dataframe(self, perf_matrix):
+    def build_perf_dataframe(self, perf_matrix, title=""):
         """
         Helper function that builds panda dataframe out of the perf_matrix
 
         Inputs : 
             - perf_matrix : performance matrix containing perf metrics per column
+            - title : extra title string
         Output : 
             - panda data frame containing perf metrics for different models
         """
         return pd.DataFrame(
             data=np.array(perf_matrix).T,
-            columns=[f"{self.class_name} (Stand={config})" for config in self.model_configs],
+            columns=[f"[{title}] {self.class_name} (Stand={config})" for config in self.model_configs],
             index=["Accuracy", "Precision", "Recall",
-                   "Specificity", "Fallout", "F1 Score", 
-                   "F Score", "Support", "ROC AUC", 
-                   "Log loss"]
+                   "F1 Score", "ROC AUC", "Log loss"]
         )
 
     def visualise_learning_curve(self, dataset):
@@ -147,9 +146,8 @@ class ModelTester():
         Outputs : void
         """
         if (show_learning_curve):
-            print(f"~~~~~~~~~~~~~~~ LEARNING CURVE ~~~~~~~~~~~~~~~")
             self.visualise_learning_curve(dataset)
-        print(f"~~~~~~~~~~~~~~~ TRAIN SET ~~~~~~~~~~~~~~~")
-        display(self.train(train_set))
-        print(f"~~~~~~~~~~~~~~~ TEST SET ~~~~~~~~~~~~~~~")
-        display(self.predict(test_set))
+        train_perf = self.train(train_set)
+        test_perf = self.predict(test_set)
+        combined_pd = pd.concat([train_perf.iloc[:,0], test_perf.iloc[:,0], train_perf.iloc[:,1], test_perf.iloc[:,1]], axis=1)
+        display(combined_pd)

@@ -7,6 +7,7 @@
 
 import numpy as np
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.linear_model import LogisticRegression
 from models.BasicModel import BasicModel
 
 

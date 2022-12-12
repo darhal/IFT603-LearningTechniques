@@ -19,19 +19,15 @@ def display_performance_metrics(classes, target, probs=None, extra_text=""):
     Outputs : 
         - performance metrics vector
     """
-    accu, precision, recall, specificity, fallout, f1_score, roc_auc, fscore, support, log_loss = get_performance_metrics(classes, target, probs)
+    accu, precision, recall, f1_score, roc_auc, log_loss = get_performance_metrics(classes, target, probs)
     print(f"""Performance Metrics {extra_text}:
     Accuracy : {accu}
     Precision : {precision}
     Sensitivity : {recall}
-    Specificity : {specificity}
-    Fallout : {fallout}
     F1 Score : {f1_score}
     ROC AUC : {roc_auc}
-    F Score : {fscore}
-    Support : {support}
     Log loss : {log_loss}""")
-    return [accu, precision, recall, specificity, fallout, f1_score, fscore, support, roc_auc, log_loss]
+    return [accu, precision, recall, f1_score, roc_auc, log_loss]
 
 
 def get_performance_metrics(classes, target, probs=None):
@@ -54,7 +50,7 @@ def get_performance_metrics(classes, target, probs=None):
         sk_roc_auc = "Not Applicable"
     sk_support = sk_support or "Not Applicable"
     assert (accu == sk_accu and sk_precision == precision and sk_recall == recall)
-    return [accu, precision, recall, specificity, fallout, f1_score, sk_fscore, sk_support, sk_roc_auc, log_loss]
+    return [accu, precision, recall, f1_score, sk_roc_auc, log_loss]
 
 
 def calculate_performance_metrics(classes, target):
@@ -76,7 +72,7 @@ def calculate_performance_metrics(classes, target):
     """
     confusion_mat = confusion_matrix(classes, target)
     accu, precision, sensitivity, specificity, fallout = confusion_matrix_perf_metrics(confusion_mat)
-    f1_score = 2 * ((precision*sensitivity) / (precision+specificity))
+    f1_score = 2 * ((precision*sensitivity) / (precision+sensitivity))
     return confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score
 
 

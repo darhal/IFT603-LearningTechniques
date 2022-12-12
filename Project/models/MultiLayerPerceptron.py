@@ -28,7 +28,7 @@ class MultiLayerPerceptron(BasicModel):
                 solver='lbfgs',
                 alpha=0.001, 
                 batch_size='auto', 
-                max_iter=300,
+                max_iter=500,
                 early_stopping=True,
                 learning_rate='adaptive'
             ),

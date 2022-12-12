@@ -25,5 +25,7 @@ class RandomForest(BasicModel):
         BasicModel.__init__(
             self,
             RandomForestClassifier(),
-            stand_trans, 
+            stand_trans,
+            core_model__n_estimators=np.linspace(10, 100, num=5, dtype=np.int32),
+            core_model__max_depth=np.linspace(10, 500, num=5, dtype=np.int32)
         )

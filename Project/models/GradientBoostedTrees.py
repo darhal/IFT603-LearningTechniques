@@ -6,28 +6,27 @@
 #####
 
 import numpy as np
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier
 from models.BasicModel import BasicModel
 
 
-class LogisticClassifier(BasicModel):
+class GradientBoostedTrees(BasicModel):
     """
-    Logistic regression classifier inherits from BasicModel
+    Gradient Boosted Trees classifier inherits from BasicModel
 
-    Hyper-params:
-        - C : varies from 10e-7 to 10e1 logarthimically
+    Hyper-params : 
+        - learning_rate : varies from 0.1 to 5 linearly
     """
-    
+
     def __init__(self, stand_trans=False):
         """
-        LogisticClassifier constructor
+        GradientBoostedTrees constructor
 
         Inputs : 
             - stand_trans : wether data should be standarided or not
         """
         BasicModel.__init__(
             self,
-            LogisticRegression(max_iter=3000),
-            stand_trans,
-            core_model__C=np.logspace(-7, 1, num=20)
+            GradientBoostingClassifier(learning_rate=0.01, probability=True),
+            stand_trans
         )

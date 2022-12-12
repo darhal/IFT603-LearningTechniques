@@ -23,12 +23,12 @@ class MultiLayerPerceptron(BasicModel):
         """
         BasicModel.__init__(self,
             MLPClassifier(
-                hidden_layer_sizes=(196,99), 
+                hidden_layer_sizes=(384,198), 
                 activation='relu', 
                 solver='lbfgs',
                 alpha=0.001, 
                 batch_size='auto', 
-                max_iter=500,
+                max_iter=200,
                 early_stopping=True,
                 learning_rate='adaptive'
             ),

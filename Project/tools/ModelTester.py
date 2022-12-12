@@ -59,12 +59,13 @@ class ModelTester():
             model.train(train_set)
             if (show_plot):
                 model.visualise_hyperparam_curve(
-                    ax[:, ax_idx] if len(components) > 1 else [ax[ax_idx]],
+                    ax[:,ax_idx] if len(components) > 1 else [ax[ax_idx]],
                     title=f"Stand={self.model_configs[ax_idx]}"
                 )
             probs, classes = model.predict_probs(train_set.features)
             perf_matrix.append(get_performance_metrics(classes, train_set.labels, probs))
         if show_plot:
+            fig.tight_layout()
             plt.show()
         return self.build_perf_dataframe(perf_matrix)
 
@@ -88,16 +89,17 @@ class ModelTester():
         Helper function that builds panda dataframe out of the perf_matrix
 
         Inputs : 
-            perf_matrix : performance matrix containing perf metrics per column
+            - perf_matrix : performance matrix containing perf metrics per column
         Output : 
             - panda data frame containing perf metrics for different models
         """
         return pd.DataFrame(
             data=np.array(perf_matrix).T,
             columns=[f"{self.class_name} (Stand={config})" for config in self.model_configs],
-            index=["Accuracy", "Precision", "Sensitivity",
+            index=["Accuracy", "Precision", "Recall",
                    "Specificity", "Fallout", "F1 Score", 
-                   "ROC AUC", "Log loss"]
+                   "F Score", "Support", "ROC AUC", 
+                   "Log loss"]
         )
 
     def visualise_learning_curve(self, dataset):

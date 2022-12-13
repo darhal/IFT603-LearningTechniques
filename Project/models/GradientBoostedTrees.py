@@ -14,7 +14,7 @@ class GradientBoostedTrees(BasicModel):
     """
     Gradient Boosted Trees classifier inherits from BasicModel
 
-    Hyper-params : 
+    Hyper-params :
         - learning_rate : varies from 0.1 to 5 linearly
     """
 
@@ -22,11 +22,11 @@ class GradientBoostedTrees(BasicModel):
         """
         GradientBoostedTrees constructor
 
-        Inputs : 
+        Inputs :
             - stand_trans : wether data should be standarided or not
         """
         BasicModel.__init__(
             self,
             GradientBoostingClassifier(learning_rate=0.01, probability=True),
-            stand_trans
+            stand_trans,
         )

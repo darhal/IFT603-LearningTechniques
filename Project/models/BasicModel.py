@@ -38,7 +38,7 @@ class BasicModel:
             - hparams_config: variadic paramter which specify hyper paramters and their search space
         """
         pipe_steps = []
-        if (stand_trans):
+        if stand_trans:
             pipe_steps.append(("scaler", StandardScaler()))
         pipe_steps.append(("core_model", core_model))
         self.pipe = Pipeline(steps=pipe_steps)
@@ -47,20 +47,20 @@ class BasicModel:
 
     def train(self, dataset, folds=5):
         """
-        Initiate the train of the whole pipeline. 
+        Initiate the train of the whole pipeline.
         If hparams are specificed then hparams search phase will be excuted.
 
-        Inputs : 
+        Inputs :
             - dataset : dataset that contains train data
             - folds : number of folds to use for cross-validation
         """
-        if (len(self.hparams_config) != 0 and folds != 0):
+        if len(self.hparams_config) != 0 and folds != 0:
             self.model = GridSearchCV(
                 self.pipe,
                 self.hparams_config,
                 cv=StratifiedKFold(folds, shuffle=True),
                 n_jobs=4,
-                return_train_score=True
+                return_train_score=True,
             )
         return self.model.fit(dataset.features, dataset.labels)
 
@@ -68,26 +68,26 @@ class BasicModel:
         """
         Predict new input based on what we have learned previously
 
-        Inputs : 
+        Inputs :
             - features : (N,M) matrix containing features of the elements we want to predict
-        Output : 
+        Output :
             - labels : (N,) integer vector containing class ID
         """
         return self.model.predict(features)
 
     def predict_probs(self, features):
         """
-        Return probability predictions and predicted classes. 
-        if there is no predict_proba function supported by the core model, 
+        Return probability predictions and predicted classes.
+        if there is no predict_proba function supported by the core model,
         then the probability array will be None.
 
-        Inputs : 
+        Inputs :
             - features : (N,M) matrix containing features of the elements we want to predict
-        Output : 
+        Output :
             - probs : (N,M) float matrix containing probabilities for each class
             - labels : (N,) integer vector containing class ID
         """
-        if (hasattr(self.model, 'predict_proba')):
+        if hasattr(self.model, "predict_proba"):
             probs = self.model.predict_proba(features)
             classes = np.argmax(probs, axis=1)
         else:
@@ -99,7 +99,7 @@ class BasicModel:
         """
         Function that returns mean square erreur.
 
-        Inputs : 
+        Inputs :
             - predictions : (N,) integer vector of predicted classes
             - labels : (N,) integer vector of ground truth classes
         """
@@ -109,7 +109,7 @@ class BasicModel:
         """
         Helper function that visualise hyper param curve and the evolution of accuracy.
 
-        Inputs : 
+        Inputs :
             - axis : matplotlib axis
             - title : custom title for the subgraph
         """
@@ -119,7 +119,11 @@ class BasicModel:
         components = list(self.hparams_config.keys())
         for i in range(0, len(self.hparams_config.keys())):
             components_col = f"param_{components[i]}"
-            best_clfs = results.groupby(components_col).apply(lambda g: g.nlargest(1, "mean_test_score"))
-            best_clfs.plot(x=components_col, y="mean_test_score", legend=False, ax=axis[i])
+            best_clfs = results.groupby(components_col).apply(
+                lambda g: g.nlargest(1, "mean_test_score")
+            )
+            best_clfs.plot(
+                x=components_col, y="mean_test_score", legend=False, ax=axis[i]
+            )
             axis[i].set_xlabel(components[i])
             axis[i].set_title(f"{title}")

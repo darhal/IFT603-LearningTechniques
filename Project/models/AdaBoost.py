@@ -15,7 +15,7 @@ class AdaBoost(BasicModel):
     """
     Ada Boost Classifier classifier inherits from BasicModel
 
-    Hyper-params : 
+    Hyper-params :
         - learning_rate : varies from 0.1 to 5 linearly
     """
 
@@ -23,7 +23,7 @@ class AdaBoost(BasicModel):
         """
         AdaBoost constructor
 
-        Inputs : 
+        Inputs :
             - stand_trans : wether data should be standardised or not
         """
         BasicModel.__init__(
@@ -31,5 +31,6 @@ class AdaBoost(BasicModel):
             AdaBoostClassifier(),
             stand_trans,
             core_model__learning_rate=np.linspace(0.1, 10.0, num=5),
-            core_model__n_estimators=np.linspace(10, 200, num=5, dtype=np.int32)
+            core_model__n_estimators=np.linspace(
+                10, 200, num=5, dtype=np.int32),
         )

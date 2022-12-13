@@ -17,17 +17,17 @@ class RidgeRegression(BasicModel):
     Hyper-params :
         - alpha : varies logarthimically between 10e-9 and 10e0.5
     """
-    
+
     def __init__(self, stand_trans=False):
         """
         RidgeRegression constructor
 
-        Inputs : 
+        Inputs :
             - stand_trans : wether data should be standardised or not
         """
         BasicModel.__init__(
-            self, 
+            self,
             RidgeClassifier(max_iter=1000),
             stand_trans,
-            core_model__alpha=np.logspace(-7, 0.5, num=20)
+            core_model__alpha=np.logspace(-7, 0.5, num=20),
         )

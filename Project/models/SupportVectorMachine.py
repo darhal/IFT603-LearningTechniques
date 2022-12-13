@@ -23,13 +23,13 @@ class SupportVectorMachine(BasicModel):
         """
         SupportVectorMachine constructor
 
-        Inputs : 
+        Inputs :
             - stand_trans : wether data should be standardised or not
         """
         BasicModel.__init__(
             self,
             SVC(kernel=kernel, max_iter=3000, C=1.0, probability=True),
-            stand_trans, 
+            stand_trans,
             core_model__C=np.logspace(-7, 1, num=10),
-            core_model__gamma=np.logspace(-7, 1, num=10)
+            core_model__gamma=np.logspace(-7, 1, num=10),
         )

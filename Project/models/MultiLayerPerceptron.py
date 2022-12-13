@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.neural_network import MLPClassifier
 from models.BasicModel import BasicModel
 
+
 class MultiLayerPerceptron(BasicModel):
     """
     MultiLayerPerceptron class inherits from BasicModel and implements a multi preceptron network
@@ -18,19 +19,20 @@ class MultiLayerPerceptron(BasicModel):
         """
         MultiLayerPerceptron constructor
 
-        Inputs : 
+        Inputs :
             - stand_trans : wether data should be standarided or not
         """
-        BasicModel.__init__(self,
+        BasicModel.__init__(
+            self,
             MLPClassifier(
-                hidden_layer_sizes=(384,198), 
-                activation='relu', 
-                solver='lbfgs',
-                alpha=0.001, 
-                batch_size='auto', 
-                max_iter=500,
+                hidden_layer_sizes=(384, 198),
+                activation="relu",
+                solver="lbfgs",
+                alpha=0.001,
+                batch_size="auto",
+                max_iter=600,
                 early_stopping=True,
-                learning_rate='adaptive'
+                learning_rate="adaptive",
             ),
-            stand_trans
+            stand_trans,
         )

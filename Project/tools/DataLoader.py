@@ -24,11 +24,11 @@ class DataLoader:
         - excluded_features : features to exclude out of the loaded file
     """
 
-    def __init__(self, filename,  class_col_name, excluded_features=set()):
+    def __init__(self, filename, class_col_name, excluded_features=set()):
         """
         DataLoader class constructor.
 
-        Inputs : 
+        Inputs :
             - filename : name of the file to load
             - class_col_name : name of the column containing the classes
             - excluded_features : set of features to excluded in our features matrix
@@ -50,7 +50,7 @@ class DataLoader:
         Outputs : void
         """
         try:
-            inputfile = open(self.filename, newline='')
+            inputfile = open(self.filename, newline="")
         except FileNotFoundError:
             print(f"File {self.filename} not found.  Aborting")
         except OSError:
@@ -63,10 +63,12 @@ class DataLoader:
                 # Load the data
                 for row in csv_data:
                     label = row[self.class_col_name]
-                    if (label not in self.classes_to_index):
+                    if label not in self.classes_to_index:
                         self.classes_to_index[label] = len(self.classes)
                         self.classes.append(label)
-                    self.features.append([v for k, v in row.items() if k not in self.excluded_features])
+                    self.features.append(
+                        [v for k, v in row.items() if k not in self.excluded_features]
+                    )
                     self.labels.append(self.classes_to_index[label])
                 self.labels = np.array(self.labels).astype(np.int32)
                 self.features = np.array(self.features).astype(np.float)
@@ -76,7 +78,7 @@ class DataLoader:
         Getter returning the entirety of the data set
 
         Inputs : void
-        Outputs : 
+        Outputs :
             - dataset loaded by the file
         """
         return DataSet(self.features, self.labels)
@@ -85,7 +87,7 @@ class DataLoader:
         """
         Get real class name from it's ID
 
-        Inputs : 
+        Inputs :
             - class ID (index)
         Outputs :
             - class name (string)

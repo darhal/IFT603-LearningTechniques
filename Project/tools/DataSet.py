@@ -13,7 +13,7 @@ class DataSet:
     """
     Class that contains a set of data along with their respective labels
 
-    Fields : 
+    Fields :
         - features: matrix of floats (NxM)
         - labels: vector of integers containing class IDs (N)
     """
@@ -22,7 +22,7 @@ class DataSet:
         """
         DataSet constructor
 
-        Inputs : 
+        Inputs :
             - features: matrix of floats (NxM)
             - labels: vector of integers containing class IDs (N)
         """
@@ -46,7 +46,7 @@ class DataSet:
         Get length of the data contained in the data set
 
         Inputs : void
-        Outputs : 
+        Outputs :
             - Number of elements in the data set : integer int
         """
         return self.labels.shape[0]
@@ -56,7 +56,7 @@ class DataSet:
         String representation of the data set
 
         Inputs : void
-        Outputs : 
+        Outputs :
             - string representation of the dataset
         """
         return f"Labels : {self.labels} - Features : {self.features}"
@@ -65,11 +65,11 @@ class DataSet:
         """
         Append a new dataset to the current one
 
-        Inputs : 
+        Inputs :
             - dataset : dataset to append
         Outputs : void
         """
-        if (self.labels.size == 0):
+        if self.labels.size == 0:
             self.features = dataset.features.copy()
             self.labels = dataset.labels.copy()
         else:
@@ -93,9 +93,9 @@ class DataSet:
         """
         Splits data set in K folds.
 
-        Inputs : 
+        Inputs :
             - folds : number of folds
-        Outputs : 
+        Outputs :
             - dataset_folds : array of K tuples containing the two folds
         """
         features_split = np.array_split(self.features, folds)
@@ -105,13 +105,12 @@ class DataSet:
                 DataSet(
                     np.concatenate(
                         features_split[np.arange(folds) != f], axis=0),
-                    np.concatenate(labels_split[np.arange(folds) != f], axis=0)
+                    np.concatenate(
+                        labels_split[np.arange(folds) != f], axis=0),
                 ),
-                DataSet(
-                    features_split[f],
-                    labels_split[f]
-                ),
-            ] for f in range(folds)
+                DataSet(features_split[f], labels_split[f]),
+            ]
+            for f in range(folds)
         ]
         return dataset_folds
 
@@ -119,7 +118,7 @@ class DataSet:
         """
         Get random samples according to the percentages array in the input.
 
-        Inputs : 
+        Inputs :
             - percentages : array of floats containing percentages of samples
         Outputs :
             - datasets : array of datasets
@@ -129,7 +128,8 @@ class DataSet:
             count_arr.append(int((p + count_arr[-1]) * len(self.labels)))
         features = np.array_split(self.features, count_arr)
         labels = np.array_split(self.labels, count_arr)
-        datasets = [DataSet(features[i], labels[i]) for i in range(0, len(labels))]
+        datasets = [DataSet(features[i], labels[i])
+                    for i in range(0, len(labels))]
         return datasets
 
     def group_by_class(self):
@@ -137,7 +137,7 @@ class DataSet:
         Groups data by their classes and output them in an array
 
         Inputs : void
-        Outputs : 
+        Outputs :
             - grouped_sets : array of datasets containing data belonging to the same class
         """
         # Sort based on label idicies
@@ -146,7 +146,8 @@ class DataSet:
         sorted_features = self.features[sorted_labels_idx]
         # Get the indices where shifts (IDs change) occur
         _, cut_idx = np.unique(sorted_labels, return_index=True)
-        # Use the indices to split the input array into sub-arrays with common IDs
+        # Use the indices to split the input array into sub-arrays with common
+        # IDs
         grouped_featured = np.split(sorted_features, cut_idx)[1:]
         grouped_labels = np.split(sorted_labels, cut_idx)[1:]
         # Create array of datasets grouping labels
@@ -159,13 +160,13 @@ class DataSet:
         """
         Splits the dataset in a stratified manner according to the percentages array
 
-        Inputs : 
+        Inputs :
             - percentages : array of floats containing percentages of samples of each class
-        Outpuits : 
+        Outpuits :
             - splits : splits of the dataset into different sub-samples with equal number classes
         """
         grouped_datasets = self.group_by_class()
-        splits = [DataSet() for _ in range(len(percentages)+1)]
+        splits = [DataSet() for _ in range(len(percentages) + 1)]
         for group in grouped_datasets:
             samples = group.get_random_samples(percentages)
             for i in range(0, len(samples)):

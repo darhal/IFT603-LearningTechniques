@@ -17,17 +17,17 @@ class LogisticClassifier(BasicModel):
     Hyper-params:
         - C : varies from 10e-7 to 10e1 logarthimically
     """
-    
+
     def __init__(self, stand_trans=False):
         """
         LogisticClassifier constructor
 
-        Inputs : 
+        Inputs :
             - stand_trans : wether data should be standarided or not
         """
         BasicModel.__init__(
             self,
             LogisticRegression(max_iter=3000),
             stand_trans,
-            core_model__C=np.logspace(-7, 1, num=20)
+            core_model__C=np.logspace(-7, 1, num=20),
         )

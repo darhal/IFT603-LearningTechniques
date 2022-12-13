@@ -14,7 +14,7 @@ class SinglePerceptron(BasicModel):
     """
     SinglePerceptron classifier inherits from BasicModel
 
-    Hyper-params : 
+    Hyper-params :
         - alpha : varies from 10e-9 to 10e0.5 lograthimically
     """
 
@@ -22,12 +22,12 @@ class SinglePerceptron(BasicModel):
         """
         SinglePerceptron constructor
 
-        Inputs : 
+        Inputs :
             - stand_trans : wether data should be standardised or not
         """
         BasicModel.__init__(
             self,
-            Perceptron(eta0=0.001, penalty='l2', max_iter=3000),
+            Perceptron(eta0=0.001, penalty="l2", max_iter=3000),
             stand_trans,
-            core_model__alpha=np.logspace(-7, 0.5, num=20)
+            core_model__alpha=np.logspace(-7, 0.5, num=20),
         )

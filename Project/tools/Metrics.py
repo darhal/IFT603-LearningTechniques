@@ -16,17 +16,21 @@ def display_performance_metrics(classes, target, probs=None, extra_text=""):
     Inputs :
         - classes : predictions vector (C,)
         - target : ground truth vector (C,)
-    Outputs : 
+    Outputs :
         - performance metrics vector
     """
-    accu, precision, recall, f1_score, roc_auc, log_loss = get_performance_metrics(classes, target, probs)
-    print(f"""Performance Metrics {extra_text}:
+    accu, precision, recall, f1_score, roc_auc, log_loss = get_performance_metrics(
+        classes, target, probs
+    )
+    print(
+        f"""Performance Metrics {extra_text}:
     Accuracy : {accu}
     Precision : {precision}
     Sensitivity : {recall}
     F1 Score : {f1_score}
     ROC AUC : {roc_auc}
-    Log loss : {log_loss}""")
+    Log loss : {log_loss}"""
+    )
     return [accu, precision, recall, f1_score, roc_auc, log_loss]
 
 
@@ -37,25 +41,42 @@ def get_performance_metrics(classes, target, probs=None):
     Inputs :
         - classes : predictions vector (C,)
         - target : ground truth vector (C,)
-    Outputs : 
+    Outputs :
         - performance metrics vector
     """
-    confusion_mat, accu, precision, recall, specificity, fallout, f1_score = calculate_performance_metrics(classes, target)
-    log_loss = sk.metrics.log_loss(target, probs) if isinstance(probs, np.ndarray) else "Not Applicable"
+    (
+        confusion_mat,
+        accu,
+        precision,
+        recall,
+        specificity,
+        fallout,
+        f1_score,
+    ) = calculate_performance_metrics(classes, target)
+    log_loss = (
+        sk.metrics.log_loss(target, probs)
+        if isinstance(probs, np.ndarray)
+        else "Not Applicable"
+    )
     sk_accu = sk.metrics.accuracy_score(target, classes)
-    sk_precision, sk_recall, sk_fscore, sk_support = sk.metrics.precision_recall_fscore_support(target, classes, average='micro')
+    (
+        sk_precision,
+        sk_recall,
+        sk_fscore,
+        sk_support,
+    ) = sk.metrics.precision_recall_fscore_support(target, classes, average="micro")
     if isinstance(probs, np.ndarray):
-        sk_roc_auc = sk.metrics.roc_auc_score(target, probs, multi_class='ovr') 
+        sk_roc_auc = sk.metrics.roc_auc_score(target, probs, multi_class="ovr")
     else:
         sk_roc_auc = "Not Applicable"
     sk_support = sk_support or "Not Applicable"
-    assert (accu == sk_accu and sk_precision == precision and sk_recall == recall)
+    assert accu == sk_accu and sk_precision == precision and sk_recall == recall
     return [accu, precision, recall, f1_score, sk_roc_auc, log_loss]
 
 
 def calculate_performance_metrics(classes, target):
     """
-    Computes all performance metrics related to given predictions 
+    Computes all performance metrics related to given predictions
     with respect to the ground truth.
 
     Inputs :
@@ -71,8 +92,10 @@ def calculate_performance_metrics(classes, target):
         - f1_score : F1 score (float)
     """
     confusion_mat = confusion_matrix(classes, target)
-    accu, precision, sensitivity, specificity, fallout = confusion_matrix_perf_metrics(confusion_mat)
-    f1_score = 2 * ((precision*sensitivity) / (precision+sensitivity))
+    accu, precision, sensitivity, specificity, fallout = confusion_matrix_perf_metrics(
+        confusion_mat
+    )
+    f1_score = 2 * ((precision * sensitivity) / (precision + sensitivity))
     return confusion_mat, accu, precision, sensitivity, specificity, fallout, f1_score
 
 
@@ -118,13 +141,13 @@ def confusion_matrix_perf_metrics(confusion_mat):
     false_neg = false_neg.sum()
     true_neg = true_neg.sum()
     # Precision or positive predictive value
-    precision = true_pos / (true_pos+false_pos)
+    precision = true_pos / (true_pos + false_pos)
     # Sensitivity, hit rate, recall, or true positive rate
-    sensitivity = true_pos / (true_pos+false_neg)
+    sensitivity = true_pos / (true_pos + false_neg)
     # Specificity or true negative rate
-    specificity = true_neg / (true_neg+false_pos)
+    specificity = true_neg / (true_neg + false_pos)
     # Fall out or false positive rate
-    fallout = false_pos / (false_pos+true_neg)
+    fallout = false_pos / (false_pos + true_neg)
     # Accurcy
     accu = true_pos / total
     return accu, precision, sensitivity, specificity, fallout

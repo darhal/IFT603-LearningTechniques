@@ -27,4 +27,3 @@ Notre analyse se base sur le notebook Jupyter `workspace.ipynb`.
 - La classe **RandomForest** : une classe qui hérite de BasicModel et qui utilise les forêts d'arbres décisionnels comme un classifieur de base.
 - La classe **AdaBoost** : une classe qui hérite de BasicModel et qui utilise le classifieur Adapatative Boosting comme classifieur de base.
 - La classe **GradientBoostedTrees** :  une classe qui hérite de BasicModel et qui utilise le classifieur GradientBoostedTrees comme classifieur de base.
-itemize
